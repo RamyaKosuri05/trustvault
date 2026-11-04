@@ -160,3 +160,23 @@ The following core invariants were established at project initialization and gov
 **Git Commit:** 85624d18f05ba8a5db9faae582c5164b8e13e6a2
 
 ---
+
+### Entry 008 — 2026-11-05 | Cloud-Readiness & PostgreSQL Parity Hardening
+**Tool:** Antigravity
+
+**Prompt:** "Great work on the Red-Team Audit. From inspecting your report, our local machine has no PostgreSQL/Docker running (so tests ran on SQLite), and we are about to deploy to Render (Web Service + Managed PostgreSQL) and Vercel. Before we push to GitHub and deploy, execute this Final Cloud-Readiness & PostgreSQL Parity Hardening pass..."
+
+**Task:** Engineer PostgresPrivateStorage for ephemeral cloud disks, normalize Render/Neon database URLs, ensure naive/aware datetime safety, create Alembic migration for storage_blobs, create production startup script, add GitHub Actions PostgreSQL 16 CI pipeline, and perform local end-to-end live smoke testing.
+
+**Adversarial Security Code Review & Corrections:**
+1. **Ephemeral Container Disk Solution (`PostgresPrivateStorage`):** Created `StorageBlob` database model (`storage_blobs` table, `BYTEA` column) and implemented `PostgresPrivateStorage` in `storage_service.py`. Defaulted Render web service to `STORAGE_BACKEND=postgres` in `render.yaml`, eliminating reliance on paid persistent disks while guaranteeing file persistence across container sleeping/cycling.
+2. **Database Driver URL Normalization:** Implemented URL normalization in `config.py`, `session.py`, and `migrations/env.py`, automatically translating `postgres://` and `postgresql://` connection strings to `postgresql+psycopg2://` to prevent driver mismatches on Render and Neon.
+3. **Timezone Awareness Safety (`ensure_utc`):** Added `ensure_utc(dt)` helper in `security.py` and audited datetime comparisons to ensure naive datetimes from SQLite never crash against aware `TIMESTAMPTZ` values from PostgreSQL.
+4. **Idempotent Seed Script & Startup Pipeline:** Refactored `seed_demo.py` to be 100% idempotent — checks if `SYSTEM_INITIALIZED` was already logged to prevent duplicate audit chain events on container restart, and self-heals missing storage bytes. Created `backend/start.sh` executing migrations, conditional seeding, and Gunicorn/Uvicorn startup.
+5. **Alembic Cloud Sync:** Created migration `002_storage_blobs.py` to synchronize PostgreSQL DDL with the new storage table.
+6. **GitHub Actions PostgreSQL 16 CI:** Authored `.github/workflows/ci.yml` configuring a real `postgres:16` service container on push/PR, running migrations, dual-pass seed idempotency verification, full 59-test pytest suite, mutation testing, and frontend production build.
+7. **Verification & Smoke Tests:** Added `test_oversized_file_rejected_413`, `test_postgres_blob_storage_backend_roundtrip_and_delete`, `test_middle_row_deletion_detected_by_sequence_gap`, and `test_concurrent_audit_writes_preserve_linear_chain`. Executed `smoke_test.py` verifying health check, multi-role authentication, document download, and cryptographic audit validation (`valid: true`). Test suite now passes with 59 tests in 46.34s (0 warnings), and mutation testing verified 20 failures on check omission.
+
+**Git Commit:** ed4940957f737741e972c0a9b9acd5a4a95e1331
+
+---
