@@ -10,6 +10,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, get_db, get_request_meta, require_role
@@ -83,11 +84,7 @@ async def get_audit_logs(
         pass  # Admin sees everything
     elif user.role == "owner":
         # Owner sees only audit events for their documents
-        owned_doc_ids = (
-            db.query(Document.id)
-            .filter(Document.owner_id == user.id)
-            .subquery()
-        )
+        owned_doc_ids = select(Document.id).where(Document.owner_id == user.id)
         query = query.filter(AuditLog.document_id.in_(owned_doc_ids))
     else:
         raise HTTPException(status_code=403, detail="Access denied.")

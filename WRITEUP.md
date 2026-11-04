@@ -59,3 +59,4 @@ Development followed human-directed AI pair programming with continuous adversar
 1. **External WORM / Syslog Forwarding:** The cryptographic hash chain prevents undetected database row alteration. However, if a privileged DBA rewrites the entire chain from genesis, only an externally exported checkpoint (`/api/v1/audit/export-checkpoint`) will catch it. Real-time syslog forwarding to an immutable WORM store is recommended for enterprise compliance.
 2. **ClamAV Socket Requirement:** The file validation pipeline includes a pluggable `MalwareScanner` with a standard signature engine. Production deployments should configure a dedicated ClamAV daemon container via `CLAMAV_HOST` and `CLAMAV_PORT`.
 3. **Hardware WebAuthn / FIDO2:** Currently uses Argon2id with opaque session cookies. FIDO2 / WebAuthn hardware tokens represent the ideal roadmap enhancement for admin authentication.
+

@@ -51,3 +51,4 @@
 |   - External anchoring via signed checkpoint exports (/api/v1/audit/export-checkpoint)  |
 +-----------------------------------------------------------------------------------------+
 ```
+

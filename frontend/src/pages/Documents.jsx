@@ -237,3 +237,4 @@ const Documents = ({ scope = 'all', pageTitle = 'Documents' }) => {
 };
 
 export default Documents;
+

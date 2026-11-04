@@ -16,7 +16,7 @@ from fastapi import (
     Query, Request, UploadFile, status
 )
 from fastapi.responses import StreamingResponse
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, select
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.dependencies import get_current_user, get_db, get_request_meta
@@ -241,8 +241,8 @@ async def list_documents(
         elif scope == "shared":
             # Documents shared with this owner by others
             shared_ids = (
-                db.query(DocumentPermission.document_id)
-                .filter(
+                select(DocumentPermission.document_id)
+                .where(
                     DocumentPermission.user_id == user.id,
                     DocumentPermission.revoked_at.is_(None),
                     or_(
@@ -250,14 +250,13 @@ async def list_documents(
                         DocumentPermission.expires_at > now,
                     ),
                 )
-                .subquery()
             )
             query = query.filter(Document.id.in_(shared_ids))
         else:
             # Default: owned + shared
             shared_ids = (
-                db.query(DocumentPermission.document_id)
-                .filter(
+                select(DocumentPermission.document_id)
+                .where(
                     DocumentPermission.user_id == user.id,
                     DocumentPermission.revoked_at.is_(None),
                     or_(
@@ -265,7 +264,6 @@ async def list_documents(
                         DocumentPermission.expires_at > now,
                     ),
                 )
-                .subquery()
             )
             query = query.filter(
                 or_(
@@ -277,8 +275,8 @@ async def list_documents(
     else:  # viewer
         # Viewers can ONLY see documents with active, non-expired grants
         active_grant_ids = (
-            db.query(DocumentPermission.document_id)
-            .filter(
+            select(DocumentPermission.document_id)
+            .where(
                 DocumentPermission.user_id == user.id,
                 DocumentPermission.revoked_at.is_(None),
                 or_(
@@ -286,7 +284,6 @@ async def list_documents(
                     DocumentPermission.expires_at > now,
                 ),
             )
-            .subquery()
         )
         query = query.filter(Document.id.in_(active_grant_ids))
 

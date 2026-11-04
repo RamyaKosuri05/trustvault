@@ -116,3 +116,4 @@ Frontend will be available at `http://localhost:5173`, backend at `http://localh
 - [`docs/API.md`](docs/API.md) — Full REST API endpoint reference
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — End-to-end zero-trust architecture diagram
 - [`docs/DATABASE.md`](docs/DATABASE.md) — PostgreSQL schema, partial unique indexes, and audit chain structure
+

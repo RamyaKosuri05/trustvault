@@ -89,3 +89,4 @@ All primary keys are UUIDv4 to eliminate sequence enumeration. Timestamps are ti
 - `occurred_at` (TIMESTAMPTZ, NOT NULL)
 - `previous_hash` (CHAR(64), NOT NULL) — Genesis event starts with `"0" * 64`
 - `event_hash` (CHAR(64), UNIQUE, NOT NULL) — `SHA-256(previous_hash + "|" + canonical_json)`
+

@@ -141,6 +141,12 @@ backend/migrations/versions/__pycache__/
 .pytest_cache/
 test-results/
 pytest.ini
+backend/test_storage/
+test_storage/
+*.db
+*.db-journal
+*.sqlite*
+backend/tests/*.db
 
 # Logs
 *.log

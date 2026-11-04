@@ -88,3 +88,4 @@ All routes are prefixed with `/api/v1`.
 - **`GET /categories`** — List all categories. Authenticated users.
 - **`POST /categories`** — Create category. Admin only.
 - **`DELETE /categories/{id}`** — Delete category. Admin only.
+

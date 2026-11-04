@@ -60,3 +60,4 @@ export const documentService = {
     window.URL.revokeObjectURL(url);
   },
 };
+

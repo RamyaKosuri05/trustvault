@@ -99,3 +99,4 @@ def test_soft_deleted_document_is_inaccessible(client: TestClient, db, storage):
     # Download must 404
     dl_resp = client.get(f"/api/v1/documents/{doc.id}/download")
     assert dl_resp.status_code == 404
+

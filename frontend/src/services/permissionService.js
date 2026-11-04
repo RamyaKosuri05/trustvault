@@ -26,3 +26,4 @@ export const permissionService = {
     return response.data;
   },
 };
+
