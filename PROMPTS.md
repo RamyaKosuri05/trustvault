@@ -123,3 +123,20 @@ The following core invariants were established at project initialization and gov
 **Git Commit:** 754fa8265f3cbf1f79f12732e918e9fc3b8da879
 
 ---
+
+### Entry 006 — 2026-11-05 | CLI Scripts Hardening & Model Registry Resolution
+**Tool:** Antigravity
+
+**Prompt:** "continue"
+
+**Task:** Verify and harden demo seed script (`seed_demo.py`) and admin creation CLI (`create_admin.py`) against empty model registries, missing DDL tables, and Windows CP1252 stdout encoding issues.
+
+**Adversarial Security Code Review & Corrections:**
+1. **Model Registry Centralization:** Populated `backend/app/models/__init__.py` exporting all entity models (`User`, `UserSession`, `Category`, `Document`, `DocumentVersion`, `DocumentPermission`, `AuditLog`). This resolves `KeyError: 'DocumentVersion'` during standalone ORM relationship resolution when mapper properties are evaluated outside FastAPI startup.
+2. **Auto-DDL Table Provisioning:** Added `Base.metadata.create_all(bind=engine)` inside `seed_demo.py` and `create_admin.py` to ensure CLI provisioning commands succeed seamlessly on fresh databases even prior to running Alembic migrations.
+3. **Windows CP1252 Encoding Crash Fix:** Replaced non-ASCII Unicode emojis (`🌱`, `✅`, `❌`) with clean ASCII status banners (`[SEED]`, `[SUCCESS]`, `[ERROR]`), preventing fatal `UnicodeEncodeError` crashes on default Windows command prompts.
+4. **Verification:** Successfully executed full demo seed creating 4 demo users, 4 categories, 4 documents with varying grant configurations, and 10 chained SHA-256 audit events; confirmed all 47 pytest tests pass with 0 errors.
+
+**Git Commit:** 8a210e1b618d483f6bf82316f6f00346f50334a6
+
+---
