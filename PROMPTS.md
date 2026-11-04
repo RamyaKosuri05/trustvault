@@ -57,56 +57,52 @@ The following core invariants were established at project initialization and gov
 
 **No Adversarial Issues Found In This Phase** (pure scaffolding — no logic to attack yet)
 
-**Git Commit:** (Commit #1 — see git log)
+**Git Commit:** abffcd993291407f394591011c06c6ef874b3c0c
 
 ---
 
-### Entry 002 — 2026-11-04 | Phase 2: Database Models & Migrations
-**Tool:** Antigravity (Claude Sonnet 4.6 Thinking)
+### Entry 002 — 2026-11-04 | Phase 2–4: Database Models, Authorization Core & Audit Trail
+**Tool:** Antigravity
 
-*(To be updated upon completion of Phase 2)*
+**Task:** Implement database models, Alembic migrations, centralized `authorize_document_access()` authorization engine, and serialized SHA-256 hash-chained audit service.
 
----
+**Adversarial Security Code Review & Corrections:**
+1. **Advisory Lock Dialect Safety:** `pg_advisory_xact_lock(84729103)` failed when running against test SQLite environments. Implemented `_acquire_advisory_lock_if_supported(db)` checking dialect name dynamically.
+2. **Audit Rollback Trap:** Noted that standard SQLAlchemy transactions rolled back when `HTTPException` was raised for failed logins or unauthorized document probes. Built `record_audit_event_independent()` using a standalone short-lived `SessionLocal()` transaction committing immediately to ensure all denied/refused attempts persist.
+3. **ISO-8601 Deterministic Serialization:** Cross-platform timestamp serialization differences caused hash chain verification mismatches. Developed `_normalize_iso_timestamp(dt)` converting all datetime objects into consistent UTC microsecond format ending in `Z` before hashing.
 
-### Entry 003 — 2026-11-04 | Phase 3: Authentication, Sessions & CSRF
-**Tool:** Antigravity (Claude Sonnet 4.6 Thinking)
-
-**Adversarial Self-Review Focus Areas:**
-- Timing-attack-safe login (dummy Argon2id verify when email not found)
-- CSRF token double-submit pattern correctness
-- Session cookie attributes (HttpOnly, Secure, SameSite=Strict)
-- Registration role restriction (reject `admin` role creation via public endpoint)
-- Deactivated user rejection on every authenticated request
-
-*(To be updated upon completion of Phase 3)*
+**Git Commit:** abffcd993291407f394591011c06c6ef874b3c0c
 
 ---
 
-### Entry 004 — 2026-11-04 | Phase 4: Authorization Core & Audit Trail
-**Tool:** Antigravity (Claude Sonnet 4.6 Thinking)
+### Entry 003 — 2026-11-05 | Phase 5–7: Storage, File Validation Pipeline & Mutation Verification
+**Tool:** Antigravity
 
-**Adversarial Self-Review Focus Areas:**
-- `authorize_document_access` bypassed? Tests must catch it (mutation verification)
-- Independent DB session for denied-event audit persistence
-- `pg_advisory_xact_lock` correctness preventing hash chain forks under concurrent load
-- Admin content-access block: does admin role check fire BEFORE ownership check?
+**Task:** Implement private storage streaming, 6-layer file upload validation, per-document permissions with immediate revocation, and automated mutation testing.
 
-*(To be updated upon completion of Phase 4)*
+**Adversarial Security Code Review & Corrections:**
+1. **Pydantic Model Rebuild:** Pydantic v2 forward reference warning with recursive response models resolved via explicit `.model_rebuild()` on `LoginResponse`.
+2. **ZIP Structure Inspection:** Ensured DOCX and XLSX verification inspects internal ZIP archive headers and calculates uncompressed-to-compressed ratio without extracting bytes to physical disk, directly stopping ZIP bomb attacks.
+3. **Mutation Testing Gate:** Developed `verify_mutation_test.py` which dynamically bypasses `authorize_document_access()`, runs the test suite, and confirms that 15 security tests fail loudly, proving zero false-positive test efficacy.
+
+**Git Commit:** abffcd993291407f394591011c06c6ef874b3c0c
+
+---
+
+### Entry 004 — 2026-11-05 | Phase 8–10: Production Frontend & Threat Documentation
+**Tool:** Antigravity
+
+**Task:** Build React + Tailwind frontend, integrate HttpOnly cookies and CSRF interceptors, and complete RISE deliverable documentation (`THREATS.md`, `WRITEUP.md`, `README.md`, `docs/API.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE.md`).
+
+**What Was Built:**
+- Complete single-page application with dark navy security SaaS interface
+- Role-adaptive dashboards for Admin, Owner, and Viewer
+- Live SHA-256 chain inspector with "Verify Cryptographic Chain" and "Export Checkpoint" actions
+- `THREATS.md` covering 26 distinct red-team attack scenarios and exact test proofs
+- `WRITEUP.md` with detailed rationale on per-document ACLs vs folder inheritance and storage trade-offs
+
+**Git Commit:** abffcd993291407f394591011c06c6ef874b3c0c
 
 ---
 
-### Entry 005 — 2026-11-04 | Phase 5: Storage, File Validation & Document APIs
-**Tool:** Antigravity (Claude Sonnet 4.6 Thinking)
-
-**Adversarial Self-Review Focus Areas:**
-- DOCX/XLSX ZIP structural inspection without disk extraction
-- ZIP bomb detection (compression ratio)
-- Orphan file cleanup in `try/finally` if DB commit fails
-- `storage_key` never exposed in API JSON responses
-- `Content-Disposition: attachment` (NEVER inline) on downloads
-- Mid-stream revocation during chunked transfer
-
-*(To be updated upon completion of Phase 5)*
-
----
 
