@@ -106,7 +106,29 @@ def authorize_document_access(
             detail="Document not found.",
         )
 
-    # --- Step 4: Check ownership (owner has all permissions on their own document) ---
+    # --- Step 4: Check if document owner account is deactivated ---
+    doc_owner = db.query(User).filter(User.id == document.owner_id).first()
+    if doc_owner and not doc_owner.is_active:
+        if not (user.role == "admin" and required_permission == "metadata_admin_or_grant"):
+            record_audit_event_independent(
+                action="DEACTIVATED_OWNER_DOCUMENT_ACCESS",
+                status="denied",
+                actor_id=user.id,
+                document_id=document.id,
+                ip_address=ip,
+                user_agent=ua,
+                details={
+                    "action": action_name,
+                    "reason": "document_owner_account_deactivated",
+                    "owner_id": str(document.owner_id),
+                },
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Document not found.",
+            )
+
+    # --- Step 5: Check ownership (owner has all permissions on their own document) ---
     is_owner = (document.owner_id == user.id)
 
     if is_owner:

@@ -33,6 +33,16 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: str = "http://localhost:5173"
 
+    @field_validator("CORS_ORIGINS")
+    @classmethod
+    def validate_cors(cls, v: str) -> str:
+        origins = [o.strip() for o in v.split(",") if o.strip()]
+        if "*" in origins:
+            raise ValueError(
+                "Wildcard '*' in CORS_ORIGINS is strictly forbidden with credentialed cookies."
+            )
+        return v
+
     @property
     def cors_origins_list(self) -> List[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]

@@ -124,3 +124,89 @@ def test_deactivating_viewer_revokes_access(client: TestClient, db, storage):
     client.cookies.set("trustvault_session", viewer_auth.get("raw_token", "invalid_or_revoked"))
     post_deact_resp = client.get(f"/api/v1/documents/{doc.id}")
     assert post_deact_resp.status_code == 401
+
+
+def test_deactivating_owner_freezes_document_access_for_viewers(client: TestClient, db, storage):
+    """Deactivating an Owner freezes all their documents immediately for Viewers (uniform 404)."""
+    admin = make_user(db, "admin_owner_freeze@test.com", "admin")
+    owner = make_user(db, "owner_to_freeze@test.com", "owner")
+    viewer = make_user(db, "viewer_of_frozen@test.com", "viewer")
+    doc = make_document(db, owner, "Frozen Company Doc", storage=storage)
+    make_grant(db, doc, viewer, owner, "read")
+    db.commit()
+
+    # Viewer can access before deactivation
+    login_as(client, "viewer_of_frozen@test.com")
+    ok_resp = client.get(f"/api/v1/documents/{doc.id}")
+    assert ok_resp.status_code == 200
+    dl_ok = client.get(f"/api/v1/documents/{doc.id}/download")
+    assert dl_ok.status_code == 200
+
+    # Admin deactivates Owner
+    client.cookies.clear()
+    admin_auth = login_as(client, "admin_owner_freeze@test.com")
+    client.patch(
+        f"/api/v1/users/{owner.id}/status",
+        json={"is_active": False},
+        headers={"X-CSRF-Token": admin_auth["csrf_token"]},
+    )
+    db.commit()
+
+    # Viewer now attempts access -> uniform 404 immediately
+    client.cookies.clear()
+    login_as(client, "viewer_of_frozen@test.com")
+    denied_view = client.get(f"/api/v1/documents/{doc.id}")
+    assert denied_view.status_code == 404, f"Viewer must get 404 when owner deactivated, got {denied_view.status_code}"
+
+    denied_dl = client.get(f"/api/v1/documents/{doc.id}/download")
+    assert denied_dl.status_code == 404, f"Viewer download must 404 when owner deactivated, got {denied_dl.status_code}"
+
+    # Document also disappears from Viewer's document listing
+    list_resp = client.get("/api/v1/documents")
+    assert list_resp.status_code == 200
+    assert list_resp.json()["total"] == 0
+
+
+def test_version_endpoints_require_authorization_and_honor_revocation(client: TestClient, db, storage):
+    """Version list and version download endpoints require active grant and 404 immediately upon revocation."""
+    owner = make_user(db, "ver_owner@test.com", "owner")
+    viewer = make_user(db, "ver_viewer@test.com", "viewer")
+    doc = make_document(db, owner, "Multi-version Document", storage=storage)
+    perm = make_grant(db, doc, viewer, owner, "read")
+    db.commit()
+
+    # Owner uploads version 2
+    owner_auth = login_as(client, "ver_owner@test.com")
+    v2_resp = client.put(
+        f"/api/v1/documents/{doc.id}/file",
+        files={"file": ("v2.pdf", b"%PDF-version2bytes", "application/pdf")},
+        headers={"X-CSRF-Token": owner_auth["csrf_token"]},
+    )
+    assert v2_resp.status_code == 200
+
+    # Viewer accesses version history and version 1 download
+    client.cookies.clear()
+    login_as(client, "ver_viewer@test.com")
+    v_list = client.get(f"/api/v1/documents/{doc.id}/versions")
+    assert v_list.status_code == 200
+    assert len(v_list.json()) >= 1
+
+    v1_dl = client.get(f"/api/v1/documents/{doc.id}/versions/1/download")
+    assert v1_dl.status_code == 200
+    assert "attachment" in v1_dl.headers.get("content-disposition", "")
+    assert "no-store" in v1_dl.headers.get("cache-control", "")
+
+    # Owner revokes the grant
+    client.cookies.clear()
+    owner_auth = login_as(client, "ver_owner@test.com")
+    client.delete(
+        f"/api/v1/documents/{doc.id}/permissions/{perm.id}",
+        headers={"X-CSRF-Token": owner_auth["csrf_token"]},
+    )
+    db.commit()
+
+    # Viewer attempts version list and version download -> both return 404 immediately!
+    client.cookies.clear()
+    login_as(client, "ver_viewer@test.com")
+    assert client.get(f"/api/v1/documents/{doc.id}/versions").status_code == 404
+    assert client.get(f"/api/v1/documents/{doc.id}/versions/1/download").status_code == 404

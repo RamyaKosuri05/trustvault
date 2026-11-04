@@ -228,6 +228,47 @@ class TestAdminRestrictions:
         ).first()
         assert log is not None, "ADMIN_CONTENT_ACCESS_BLOCKED must be logged on 403"
 
+    def test_admin_cannot_patch_other_owner_document(self, client: TestClient, db, storage):
+        """Admin cannot PATCH document metadata on other owner's document without grant."""
+        admin = make_user(db, "admin_patch@test.com", "admin")
+        owner = make_user(db, "owner_patch@test.com", "owner")
+        doc = make_document(db, owner, "Secret Admin Patch", storage=storage)
+
+        auth = login_as(client, "admin_patch@test.com")
+        resp = client.patch(
+            f"/api/v1/documents/{doc.id}",
+            json={"name": "Admin Tampered"},
+            headers={"X-CSRF-Token": auth["csrf_token"]},
+        )
+        assert resp.status_code == 403
+
+    def test_admin_cannot_delete_other_owner_document(self, client: TestClient, db, storage):
+        """Admin cannot DELETE other owner's document."""
+        admin = make_user(db, "admin_del@test.com", "admin")
+        owner = make_user(db, "owner_del@test.com", "owner")
+        doc = make_document(db, owner, "Secret Admin Del", storage=storage)
+
+        auth = login_as(client, "admin_del@test.com")
+        resp = client.delete(
+            f"/api/v1/documents/{doc.id}",
+            headers={"X-CSRF-Token": auth["csrf_token"]},
+        )
+        assert resp.status_code == 403
+
+    def test_admin_cannot_put_version_on_other_owner_document(self, client: TestClient, db, storage):
+        """Admin cannot PUT file new version on other owner's document."""
+        admin = make_user(db, "admin_ver@test.com", "admin")
+        owner = make_user(db, "owner_ver@test.com", "owner")
+        doc = make_document(db, owner, "Secret Admin Ver", storage=storage)
+
+        auth = login_as(client, "admin_ver@test.com")
+        resp = client.put(
+            f"/api/v1/documents/{doc.id}/file",
+            files={"file": ("v2.pdf", b"%PDF-v2newcontent", "application/pdf")},
+            headers={"X-CSRF-Token": auth["csrf_token"]},
+        )
+        assert resp.status_code == 403
+
 
 class TestSearchAntiEnumeration:
     """Search/list must NOT leak document names/metadata for unauthorized documents."""
@@ -245,6 +286,39 @@ class TestSearchAntiEnumeration:
         data = resp.json()
         assert data["total"] == 0, f"Viewer must see 0 ungranted results, got {data['total']}"
         assert len(data["items"]) == 0
+
+    def test_search_wildcard_escaping_does_not_leak_unauthorized(self, client: TestClient, db, storage):
+        """Passing % or _ in query string escapes LIKE pattern properly."""
+        owner = make_user(db, "wildcard_owner@test.com", "owner")
+        viewer = make_user(db, "wildcard_viewer@test.com", "viewer")
+        make_document(db, owner, "Confidential Secret 1", storage=storage)
+        make_document(db, owner, "Confidential Secret 2", storage=storage)
+
+        login_as(client, "wildcard_viewer@test.com")
+        # Attacker tries searching '%' or '_' to match all or probe
+        resp_pct = client.get("/api/v1/documents?q=%")
+        assert resp_pct.status_code == 200
+        assert resp_pct.json()["total"] == 0
+
+        resp_underscore = client.get("/api/v1/documents?q=_")
+        assert resp_underscore.status_code == 200
+        assert resp_underscore.json()["total"] == 0
+
+    def test_download_security_headers_enforced(self, client: TestClient, db, storage):
+        """Download responses enforce strict attachment, no-cache, and nosniff headers."""
+        owner = make_user(db, "headers_owner@test.com", "owner")
+        doc = make_document(db, owner, "Headers Test", file_bytes=b"%PDF-safe", storage=storage)
+
+        login_as(client, "headers_owner@test.com")
+        resp = client.get(f"/api/v1/documents/{doc.id}/download")
+        assert resp.status_code == 200
+
+        headers = resp.headers
+        assert "attachment" in headers.get("content-disposition", "")
+        assert "nosniff" == headers.get("x-content-type-options")
+        assert "no-store" in headers.get("cache-control", "")
+        assert "no-cache" in headers.get("cache-control", "")
+        assert "must-revalidate" in headers.get("cache-control", "")
 
 
 class TestUnauthenticated:

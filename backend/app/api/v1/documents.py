@@ -200,6 +200,11 @@ async def upload_document(
         raise
 
 
+def _escape_like_pattern(pattern: str) -> str:
+    """Escape SQL LIKE wildcards (% and _) and backslash escape char."""
+    return pattern.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 @router.get("", response_model=PaginatedResponse[DocumentResponse])
 async def list_documents(
     request: Request,
@@ -287,9 +292,19 @@ async def list_documents(
         )
         query = query.filter(Document.id.in_(active_grant_ids))
 
+    # If not admin, require that the document owner account is active
+    if user.role != "admin":
+        query = query.join(Document.owner).filter(User.is_active == True)
+
     # --- Apply search/filter AFTER authorization filter ---
     if q:
-        query = query.filter(Document.name.ilike(f"%{q}%"))
+        escaped_q = _escape_like_pattern(q)
+        query = query.filter(Document.name.ilike(f"%{escaped_q}%", escape="\\"))
+    if owner_name:
+        escaped_owner = _escape_like_pattern(owner_name)
+        if user.role == "admin":
+            query = query.join(Document.owner)
+        query = query.filter(User.full_name.ilike(f"%{escaped_owner}%", escape="\\"))
     if category_id:
         query = query.filter(Document.category_id == category_id)
     if file_type:
@@ -576,6 +591,101 @@ async def get_versions(
         .all()
     )
     return versions
+
+
+@router.get("/{document_id}/versions/{version_number}/download")
+async def download_document_version(
+    document_id: uuid.UUID,
+    version_number: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+    meta: dict = Depends(get_request_meta),
+):
+    """
+    Stream a specific document version's file bytes.
+    Requires read access.
+    Admin role CANNOT download without explicit grant (403).
+    """
+    doc = authorize_document_access(
+        db=db, user=user, document_id=document_id,
+        required_permission="read",
+        action_name="DOCUMENT_VERSION_DOWNLOAD",
+        request_meta=meta,
+    )
+
+    ver = (
+        db.query(DocumentVersion)
+        .filter(
+            DocumentVersion.document_id == doc.id,
+            DocumentVersion.version_number == version_number,
+        )
+        .first()
+    )
+    if not ver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document version not found.",
+        )
+
+    record_audit_event(
+        db=db, action="DOCUMENT_VERSION_DOWNLOAD", status="success",
+        actor_id=user.id, document_id=doc.id,
+        ip_address=meta.get("ip_address"), user_agent=meta.get("user_agent"),
+        details={
+            "document_name": doc.name,
+            "version_number": version_number,
+            "file_size": ver.file_size,
+        },
+    )
+    db.commit()
+
+    storage = get_storage()
+    storage_key = ver.storage_key
+    doc_id = doc.id
+    doc_name = ver.original_filename
+    mime = ver.mime_type
+
+    ascii_filename = "".join(c if ord(c) < 128 and c not in '"\\' else "_" for c in doc_name)
+    encoded_filename = quote(doc_name)
+
+    def generate_chunks():
+        chunk_count = 0
+        try:
+            for chunk in storage.stream(storage_key):
+                chunk_count += 1
+                if chunk_count % CHUNK_REVOCATION_CHECK_INTERVAL == 0:
+                    if not check_mid_stream_revocation(db, user, doc_id, meta):
+                        record_audit_event_independent(
+                            action="DOWNLOAD_ABORTED_REVOKED",
+                            status="denied",
+                            actor_id=user.id,
+                            document_id=doc_id,
+                            ip_address=meta.get("ip_address"),
+                            user_agent=meta.get("user_agent"),
+                            details={
+                                "reason": "permission_revoked_mid_stream",
+                                "chunks_sent": chunk_count,
+                                "version_number": version_number,
+                            },
+                        )
+                        return
+                yield chunk
+        except Exception:
+            return
+
+    return StreamingResponse(
+        generate_chunks(),
+        media_type=mime,
+        headers={
+            "Content-Disposition": f'attachment; filename="{ascii_filename}"; filename*=UTF-8\'\'{encoded_filename}',
+            "X-Content-Type-Options": "nosniff",
+            "Cache-Control": "private, no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+            "Content-Security-Policy": "default-src 'none'; sandbox",
+        },
+    )
 
 
 @router.delete("/{document_id}", status_code=204)
