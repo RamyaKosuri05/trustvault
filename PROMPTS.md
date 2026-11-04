@@ -140,3 +140,23 @@ The following core invariants were established at project initialization and gov
 **Git Commit:** 8a210e1b618d483f6bf82316f6f00346f50334a6
 
 ---
+
+### Entry 007 — 2026-11-05 | Red-Team Audit & Deep Vulnerability Fixes
+**Tool:** Antigravity
+
+**Prompt:** "Before we move to live deployment, run a strict Verification & Red-Team Audit across the workspace and give me an honest, command-backed report. Do NOT guess or summarize from memory — actually execute the checks in the terminal..."
+
+**Task:** Execute red-team code audit across 6 classic vulnerability patterns: version download authentication, search filter SQL LIKE wildcard probing, deactivated owner document freezing, admin escalation barriers, audit rollback persistence proof, and CORS/cache headers.
+
+**Adversarial Security Code Review & Corrections:**
+1. **Document Version Download Endpoint Authorization:** Implemented dedicated `@router.get("/{document_id}/versions/{version_number}/download")` in `documents.py` requiring `authorize_document_access(required_permission="read")` and periodic mid-stream revocation checks. When a viewer's grant is revoked, old versions return uniform 404 immediately.
+2. **SQL LIKE Wildcard Sanitization:** Added `_escape_like_pattern()` escaping `%`, `_`, and `\` before passing parameters to SQL `ILIKE ... ESCAPE '\\'`. Prevents metadata enumeration and wildcard brute-forcing by unprivileged users.
+3. **Deactivated Owner Document Freeze:** Updated `authorize_document_access()` and `list_documents` to verify `doc_owner.is_active == True`. When an owner account is deactivated, all shared documents are immediately frozen and return uniform 404 to all viewers, vanishing from document lists while preserving admin governance metadata.
+4. **Admin Escalation Barriers:** Hardened and tested all document manipulation routes (`PATCH /documents/{id}`, `PUT /documents/{id}/file`, `DELETE /documents/{id}`, `POST /documents/{id}/permissions`) against admin attempts, strictly returning 403 Forbidden with `ADMIN_CONTENT_ACCESS_BLOCKED` denied audit events.
+5. **Audit Rollback Persistence Proof:** Added `test_audit_rollback_persistence_on_unauthorized_download()` proving that unauthorized download attempts persist `denied` audit rows via standalone transactions even when requests abort with 404, keeping `/api/v1/audit/verify` cryptographically valid (`valid: true`).
+6. **Strict CORS Validator:** Added Pydantic field validator in `config.py` rejecting wildcard `*` in `CORS_ORIGINS` when credentialed cookies are enabled.
+7. **Verification Results:** Pytest test suite expanded from 47 to 55 passing tests in 35.72s (0 warnings); mutation verification confirmed 20 failed tests when authorization check was removed (up from 15).
+
+**Git Commit:** 85624d18f05ba8a5db9faae582c5164b8e13e6a2
+
+---
