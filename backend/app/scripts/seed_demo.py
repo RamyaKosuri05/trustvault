@@ -203,6 +203,10 @@ def _get_or_create_document(db, storage, owner, category, name, original_filenam
     ).first()
     if existing:
         print(f"  Document exists: {name}")
+        # Ensure storage bytes are present in backend (self-healing)
+        if not storage.exists(existing.storage_key):
+            storage.put(existing.storage_key, file_bytes)
+            print(f"  Restored missing storage bytes for: {name}")
         return existing
 
     import hashlib
@@ -254,7 +258,12 @@ def _get_or_create_grant(db, doc, grantee, permission, granter):
 
 
 def _seed_audit_events(db, admin, owner, owner2, viewer, doc1, doc2, doc3, doc4):
-    """Seed initial audit events to start the hash chain with realistic history."""
+    """Seed initial audit events to start the hash chain with realistic history. Idempotent."""
+    has_system_init = db.query(AuditLog).filter(AuditLog.action == "SYSTEM_INITIALIZED").first()
+    if has_system_init:
+        print("  Audit events already seeded — skipping to preserve chain integrity.")
+        return
+
     events = [
         {"action": "SYSTEM_INITIALIZED", "status": "success", "actor_id": admin.id,
          "details": {"message": "TrustVault demo environment initialized"}},

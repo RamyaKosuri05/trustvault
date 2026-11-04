@@ -15,8 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application
 COPY . .
 
-# Create private storage directory (outside web root)
-RUN mkdir -p /app/storage && chmod 700 /app/storage
+# Make startup script executable and prepare storage directory
+RUN chmod +x /app/start.sh && mkdir -p /app/storage && chmod 700 /app/storage
 
 # Non-root user for security
 RUN useradd -m -u 1001 trustvault && chown -R trustvault:trustvault /app
@@ -24,5 +24,5 @@ USER trustvault
 
 EXPOSE 8000
 
-CMD ["gunicorn", "app.main:app", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--timeout", "120", "--access-logfile", "-"]
+CMD ["/app/start.sh"]
 

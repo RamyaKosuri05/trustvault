@@ -2,8 +2,10 @@
 TrustVault — Security Utilities
 Argon2id password hashing, opaque session token generation, SHA-256 hashing.
 """
+from datetime import datetime, timezone
 import hashlib
 import secrets
+from typing import Optional
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHashError
 
@@ -71,4 +73,18 @@ def sha256_bytes_hex(data: bytes) -> str:
 def constant_time_compare(a: str, b: str) -> bool:
     """Constant-time string comparison to prevent timing attacks."""
     return secrets.compare_digest(a.encode("utf-8"), b.encode("utf-8"))
+
+
+def ensure_utc(dt: Optional[datetime]) -> Optional[datetime]:
+    """
+    Ensure a datetime is timezone-aware in UTC.
+    If naive (e.g. from SQLite or naive client), attaches timezone.utc.
+    If already aware (e.g. from PostgreSQL TIMESTAMPTZ), converts to UTC.
+    If None, returns None.
+    """
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 

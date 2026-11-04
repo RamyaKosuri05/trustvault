@@ -8,6 +8,7 @@ from app.models.document import Document
 from app.models.document_version import DocumentVersion
 from app.models.permission import DocumentPermission
 from app.models.audit_log import AuditLog
+from app.models.storage_blob import StorageBlob
 
 __all__ = [
     "User",
@@ -17,4 +18,5 @@ __all__ = [
     "DocumentVersion",
     "DocumentPermission",
     "AuditLog",
+    "StorageBlob",
 ]

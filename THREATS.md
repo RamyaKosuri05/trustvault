@@ -1,7 +1,7 @@
 # THREATS.md — TrustVault Security Threat Matrix & Verification Catalog
 ## RISE Security Challenge Edition
 
-This threat model documents **29 concrete security threats**, their impact, the exact mitigations implemented in code, automated test verification proofs, and honest residual risk analyses.
+This threat model documents **30 concrete security threats**, their impact, the exact mitigations implemented in code, automated test verification proofs, and honest residual risk analyses.
 
 ---
 
@@ -36,4 +36,5 @@ This threat model documents **29 concrete security threats**, their impact, the 
 | **27** | **Document Version Download Bypass**<br>Attacker accesses superseded historical versions via version routes after permission revocation. | Historical confidential file disclosure. | Version download endpoint (`GET /documents/{id}/versions/{version_number}/download`) gates on `authorize_document_access(..., "read")` with mid-stream revocation checks. | `test_version_endpoints_require_authorization_and_honor_revocation` | Historical versions are as strictly guarded as current versions; returns uniform 404 when ungranted or revoked. |
 | **28** | **Search LIKE Wildcard Metadata Probing**<br>Attacker uses `%` or `_` SQL wildcards in `q` or `owner_name` search filters to probe patterns or character lengths. | Metadata enumeration. | `_escape_like_pattern()` sanitizes `%`, `_`, and `\` before interpolating into SQL `ILIKE ... ESCAPE '\\'`. Chained ORM queries ensure authorization boundaries are never bypassed. | `test_search_wildcard_escaping_does_not_leak_unauthorized` | Exact character matching enforced; zero wildcard leakage. |
 | **29** | **Deactivated Owner Document Leakage**<br>Viewer accesses shared document after the document owner's account was deactivated or terminated. | Data leakage from departed employee accounts. | `authorize_document_access()` and `list_documents` enforce `doc_owner.is_active == True`. When owner is deactivated, all shared docs return uniform 404 and vanish from listings. | `test_deactivating_owner_freezes_document_access_for_viewers` | Documents instantly frozen for viewers upon owner suspension; admin retains governance visibility. |
+| **30** | **Ephemeral Cloud Storage Data Loss**<br>Container restart/sleep wipes `./storage` files, stranding database metadata records with missing files. | Service disruption; 500 errors on valid document downloads. | `PostgresPrivateStorage` persists raw file bytes in an isolated `storage_blobs` database table, completely eliminating local filesystem dependencies on container clouds. | `test_postgres_blob_storage_backend_roundtrip_and_delete` | DB snapshot sizes grow with document count; appropriate for payloads up to 10MB. |
 

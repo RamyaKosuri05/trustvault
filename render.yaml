@@ -19,7 +19,7 @@ services:
       - key: CORS_ORIGINS
         sync: false
       - key: STORAGE_BACKEND
-        value: local
+        value: postgres
       - key: LOCAL_STORAGE_PATH
         value: /app/storage
       - key: MAX_UPLOAD_SIZE_MB
@@ -27,13 +27,8 @@ services:
       - key: SESSION_COOKIE_SECURE
         value: "true"
       - key: ALLOW_DEMO_SEED
-        value: "false"
-    disk:
-      name: trustvault-storage
-      mountPath: /app/storage
-      sizeGB: 10
-    buildCommand: "alembic upgrade head"
-    startCommand: "gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120"
+        value: "true"
+    startCommand: "/app/start.sh"
 
 databases:
   - name: trustvault-db

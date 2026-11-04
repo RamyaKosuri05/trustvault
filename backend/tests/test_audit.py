@@ -87,3 +87,94 @@ def test_audit_rollback_persistence_on_unauthorized_download(client: TestClient,
     assert v_resp.status_code == 200
     v_data = v_resp.json()
     assert v_data["valid"] is True, f"Audit chain must be valid after denied event: {v_data}"
+
+
+def test_middle_row_deletion_detected_by_sequence_gap(client: TestClient, db):
+    """Deleting a row from the middle of the audit table is caught by sequence gap check."""
+    admin = make_user(db, "gap_admin@test.com", "admin")
+    auth = login_as(client, "gap_admin@test.com")
+
+    # Generate at least 4 audit events
+    for i in range(4):
+        client.post(
+            "/api/v1/categories",
+            json={"name": f"Gap Cat {i}"},
+            headers={"X-CSRF-Token": auth["csrf_token"]},
+        )
+
+    # Initial chain must be valid
+    v1 = client.get("/api/v1/audit/verify").json()
+    assert v1["valid"] is True
+    total = v1["total_events"]
+    assert total >= 4
+
+    # Delete the second row (sequence_number == 2)
+    target = db.query(AuditLog).filter(AuditLog.sequence_number == 2).first()
+    assert target is not None
+    db.delete(target)
+    db.commit()
+
+    # Re-verify -> must detect sequence gap!
+    v2 = client.get("/api/v1/audit/verify").json()
+    assert v2["valid"] is False
+    assert v2["broken_at_sequence"] == 2
+    assert "Sequence gap" in v2["reason"]
+
+
+def test_concurrent_audit_writes_preserve_linear_chain(engine_fixture):
+    """Concurrent audit event records maintain contiguous sequence and valid SHA-256 chain."""
+    import concurrent.futures
+    import threading
+    from sqlalchemy.orm import sessionmaker
+    from app.services.audit_service import record_audit_event, verify_audit_chain
+
+    SessionMaker = sessionmaker(bind=engine_fixture)
+    is_sqlite = engine_fixture.dialect.name == "sqlite"
+    sqlite_lock = threading.Lock()
+
+    def write_event(idx: int):
+        # On SQLite StaticPool, multiple threads cannot access the single raw dbapi connection simultaneously
+        if is_sqlite:
+            with sqlite_lock:
+                thread_db = SessionMaker()
+                try:
+                    record_audit_event(
+                        db=thread_db,
+                        action="CONCURRENT_PROBE",
+                        status="success",
+                        actor_id=None,
+                        document_id=None,
+                        details={"thread_index": idx},
+                    )
+                    thread_db.commit()
+                finally:
+                    thread_db.close()
+        else:
+            thread_db = SessionMaker()
+            try:
+                record_audit_event(
+                    db=thread_db,
+                    action="CONCURRENT_PROBE",
+                    status="success",
+                    actor_id=None,
+                    document_id=None,
+                    details={"thread_index": idx},
+                )
+                thread_db.commit()
+            finally:
+                thread_db.close()
+
+    # Dispatch 10 concurrent writes across worker threads
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        futures = [executor.submit(write_event, i) for i in range(10)]
+        concurrent.futures.wait(futures)
+        for f in futures:
+            f.result()  # raise exception if any worker failed
+
+    verify_db = SessionMaker()
+    try:
+        result = verify_audit_chain(verify_db)
+        assert result["valid"] is True, f"Concurrent chain corrupted: {result}"
+        assert result["total_events"] >= 10
+    finally:
+        verify_db.close()

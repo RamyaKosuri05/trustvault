@@ -25,6 +25,16 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///" + os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tests", "test_trustvault.db")) if os.getenv("ENVIRONMENT") == "testing" else "postgresql+psycopg2://trustvault:trustvault_dev_password@localhost:5432/trustvault"
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def normalize_database_url(cls, v: str) -> str:
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                return "postgresql+psycopg2://" + v[len("postgres://"):]
+            if v.startswith("postgresql://") and not v.startswith("postgresql+"):
+                return "postgresql+psycopg2://" + v[len("postgresql://"):]
+        return v
+
     # Security
     SECRET_KEY: str = "CHANGE_THIS_TO_A_RANDOM_64_CHAR_HEX_STRING"
     SESSION_EXPIRE_HOURS: int = 24
@@ -48,7 +58,7 @@ class Settings(BaseSettings):
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
     # File Storage
-    STORAGE_BACKEND: str = "local"  # "local" or "s3"
+    STORAGE_BACKEND: str = "local"  # "local", "postgres", or "s3"
     LOCAL_STORAGE_PATH: str = "./storage"
 
     # S3 (optional)

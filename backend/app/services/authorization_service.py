@@ -290,16 +290,27 @@ def check_mid_stream_revocation(
     if not fresh_user or not fresh_user.is_active:
         return False
 
-    is_owner = db.query(Document).filter(
-        Document.id == document_id,
-        Document.owner_id == user.id,
-        Document.deleted_at.is_(None),
-    ).first() is not None
+    # 1. Caller must still be active
+    caller = db.query(User).filter(User.id == user.id).first()
+    if not caller or not caller.is_active:
+        return False
 
-    if is_owner:
+    # 2. Document must not be deleted, and its owner must still be active
+    doc = db.query(Document).filter(
+        Document.id == document_id,
+        Document.deleted_at.is_(None),
+    ).first()
+    if not doc:
+        return False
+
+    doc_owner = db.query(User).filter(User.id == doc.owner_id).first()
+    if not doc_owner or not doc_owner.is_active:
+        return False
+
+    if doc.owner_id == user.id:
         return True
 
-    # Check active grant still exists
+    # 3. Check active, non-expired grant still exists
     now = _now_utc()
     grant = db.query(DocumentPermission).filter(
         DocumentPermission.document_id == document_id,

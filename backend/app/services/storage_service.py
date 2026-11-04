@@ -159,6 +159,78 @@ class S3PrivateStorage(StorageBackend):
             return False
 
 
+class PostgresPrivateStorage(StorageBackend):
+    """
+    PostgreSQL LargeBinary/BYTEA storage backend for container environments
+    where local disk is ephemeral (e.g. Render container tier without persistent disk).
+    Accessed exclusively via storage_service — never joined in metadata queries.
+    """
+
+    def __init__(self, session_factory=None):
+        if session_factory is None:
+            from app.db.session import SessionLocal
+            self.session_factory = SessionLocal
+        else:
+            self.session_factory = session_factory
+
+    def put(self, storage_key: str, file_bytes: bytes) -> None:
+        from app.models.storage_blob import StorageBlob
+        db = self.session_factory()
+        try:
+            existing = db.query(StorageBlob).filter(StorageBlob.storage_key == storage_key).first()
+            if existing:
+                existing.blob_data = file_bytes
+            else:
+                blob = StorageBlob(storage_key=storage_key, blob_data=file_bytes)
+                db.add(blob)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+
+    def stream(self, storage_key: str) -> Iterator[bytes]:
+        import io
+        from app.models.storage_blob import StorageBlob
+        db = self.session_factory()
+        try:
+            blob = db.query(StorageBlob).filter(StorageBlob.storage_key == storage_key).first()
+            if not blob or not blob.blob_data:
+                raise FileNotFoundError(f"Storage blob not found for key: {storage_key}")
+            data = blob.blob_data
+        finally:
+            db.close()
+
+        stream = io.BytesIO(data)
+        while True:
+            chunk = stream.read(CHUNK_SIZE)
+            if not chunk:
+                break
+            yield chunk
+
+    def delete(self, storage_key: str) -> None:
+        from app.models.storage_blob import StorageBlob
+        db = self.session_factory()
+        try:
+            db.query(StorageBlob).filter(StorageBlob.storage_key == storage_key).delete()
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            import sys
+            print(f"[STORAGE/POSTGRES] Failed to delete blob {storage_key}: {e}", file=sys.stderr)
+        finally:
+            db.close()
+
+    def exists(self, storage_key: str) -> bool:
+        from app.models.storage_blob import StorageBlob
+        db = self.session_factory()
+        try:
+            return db.query(StorageBlob.storage_key).filter(StorageBlob.storage_key == storage_key).first() is not None
+        finally:
+            db.close()
+
+
 def get_storage_backend() -> StorageBackend:
     """Factory — returns configured storage backend based on STORAGE_BACKEND env var."""
     backend = settings.STORAGE_BACKEND.lower()
@@ -167,6 +239,8 @@ def get_storage_backend() -> StorageBackend:
             bucket=settings.AWS_S3_BUCKET,
             region=settings.AWS_S3_REGION,
         )
+    elif backend in ("postgres", "postgresql"):
+        return PostgresPrivateStorage()
     else:
         return LocalPrivateStorage(settings.LOCAL_STORAGE_PATH)
 

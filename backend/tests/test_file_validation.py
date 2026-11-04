@@ -100,3 +100,50 @@ def test_soft_deleted_document_is_inaccessible(client: TestClient, db, storage):
     dl_resp = client.get(f"/api/v1/documents/{doc.id}/download")
     assert dl_resp.status_code == 404
 
+
+def test_oversized_file_rejected_413(client: TestClient, db, monkeypatch):
+    """File exceeding MAX_UPLOAD_SIZE_MB is rejected with 413 Content Too Large."""
+    from app.core.config import settings
+
+    # Temporarily set max upload limit to 100 bytes
+    monkeypatch.setattr(settings, "MAX_UPLOAD_SIZE_MB", 0.0001)
+
+    owner = make_user(db, "oversized_owner@test.com", "owner")
+    auth = login_as(client, "oversized_owner@test.com")
+
+    # Send 1024 bytes of valid PDF
+    oversized_bytes = b"%PDF-1.4 " + (b"A" * 1024)
+
+    resp = client.post(
+        "/api/v1/documents/upload",
+        data={"name": "Oversized Doc"},
+        files={"file": ("large.pdf", oversized_bytes, "application/pdf")},
+        headers={"X-CSRF-Token": auth["csrf_token"]},
+    )
+    assert resp.status_code == 413
+
+
+def test_postgres_blob_storage_backend_roundtrip_and_delete(engine_fixture):
+    """Test PostgresPrivateStorage put, stream, exists, and delete using DB engine."""
+    from sqlalchemy.orm import sessionmaker
+    from app.services.storage_service import PostgresPrivateStorage
+
+    TestSession = sessionmaker(bind=engine_fixture)
+    storage = PostgresPrivateStorage(session_factory=TestSession)
+
+    key = storage.generate_key()
+    assert not storage.exists(key)
+
+    payload = b"Confidential DB BLOB Content for Cloud Container Storage Parity"
+    storage.put(key, payload)
+    assert storage.exists(key)
+
+    # Stream back
+    chunks = list(storage.stream(key))
+    reconstructed = b"".join(chunks)
+    assert reconstructed == payload
+
+    # Delete
+    storage.delete(key)
+    assert not storage.exists(key)
+

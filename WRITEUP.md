@@ -34,6 +34,11 @@ In traditional folder inheritance systems, adding a user to a parent directory c
 
 ### 3. Immediate Revocation & Storage Trade-offs
 - **Proxy-Streaming vs. S3 Presigned URLs:** Presigned S3 URLs grant direct, unmonitored access that cannot be invalidated immediately without complex IAM/STS rollouts or URL expiry limits. TrustVault routes all file transfers through the backend server, allowing instant revocation on the very next request and chunked mid-stream cancellation.
+- **Storage Tier Triad (`LocalPrivateStorage`, `S3PrivateStorage`, `PostgresPrivateStorage`):**
+  - **LocalPrivateStorage:** Used for local development and persistent disks (outside web root, permissions 0600/0700).
+  - **S3PrivateStorage:** Production cloud standard using server-side boto3 streaming (never issuing presigned URLs to clients).
+  - **PostgresPrivateStorage:** Engineered specifically for cloud container environments with ephemeral local filesystems (such as Render free tier without paid persistent disk mounts). Stores file bytes in an isolated `storage_blobs` table (BYTEA) accessed exclusively by the storage service layer (never joined or exposed in metadata queries).
+  - **Architectural Trade-off:** Storing binary files in PostgreSQL tables increases database buffer pool overhead and snapshot sizes. For files up to 10MB (our enforced limit), this provides a zero-config, self-contained persistence layer that completely prevents ephemeral disk data loss when containers cycle or restart.
 - **Cost Trade-off:** Proxy streaming consumes server network bandwidth and database read cycles. However, for a confidential security-first platform, eliminating stale access windows completely outweighs the marginal bandwidth cost.
 - **Physical Reality of Network Protocols:** As documented honestly, once bytes are transmitted over the wire and accepted by the client socket, they cannot be retracted from client memory. Immediate revocation ensures zero *subsequent* bytes or future requests succeed.
 

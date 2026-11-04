@@ -17,8 +17,16 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Override sqlalchemy.url from settings (supports .env override)
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+def _normalize_db_url(url: str) -> str:
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg2://" + url[len("postgres://"):]
+    if url.startswith("postgresql://") and not url.startswith("postgresql+"):
+        return "postgresql+psycopg2://" + url[len("postgresql://"):]
+    return url
+
+# Override sqlalchemy.url from settings (supports .env override and Render/Neon URL format)
+raw_url = os.getenv("DATABASE_URL") or settings.DATABASE_URL
+config.set_main_option("sqlalchemy.url", _normalize_db_url(raw_url))
 
 target_metadata = Base.metadata
 

@@ -1,0 +1,102 @@
+name: TrustVault CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  backend-postgresql-ci:
+    name: Backend Security Suite (PostgreSQL 16)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: trustvault_test
+          POSTGRES_USER: trustvault
+          POSTGRES_PASSWORD: trustvault_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql+psycopg2://trustvault:trustvault_test_password@localhost:5432/trustvault_test
+      TEST_DATABASE_URL: postgresql+psycopg2://trustvault:trustvault_test_password@localhost:5432/trustvault_test
+      SECRET_KEY: test-secret-key-for-continuous-integration-must-be-32-chars
+      STORAGE_BACKEND: postgres
+      ALLOW_DEMO_SEED: "true"
+      ENVIRONMENT: testing
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install "email-validator>=2.0.0"
+
+      - name: Run Alembic migrations against PostgreSQL 16
+        working-directory: backend
+        run: |
+          alembic upgrade head
+
+      - name: Test Demo Seed Idempotency (Pass 1)
+        working-directory: backend
+        run: |
+          python -m app.scripts.seed_demo --confirm-demo-seed
+
+      - name: Test Demo Seed Idempotency (Pass 2 - Idempotency Verification)
+        working-directory: backend
+        run: |
+          python -m app.scripts.seed_demo --confirm-demo-seed
+
+      - name: Run Full Security Test Suite on PostgreSQL 16
+        working-directory: backend
+        run: |
+          pytest -v
+
+      - name: Run Authorization Mutation Verification Script
+        working-directory: backend
+        run: |
+          python app/scripts/verify_mutation_test.py
+
+  frontend-ci:
+    name: Frontend Lint & Production Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: |
+          npm ci
+
+      - name: Build production bundle
+        working-directory: frontend
+        run: |
+          npm run build
+
