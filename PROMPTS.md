@@ -106,3 +106,20 @@ The following core invariants were established at project initialization and gov
 ---
 
 
+
+### Entry 005 — 2026-11-05 | Verification & ORM Cleanliness Polish
+**Tool:** Antigravity
+
+**Prompt:** "continue"
+
+**Task:** Complete automated test suite execution, verify zero warnings in pytest, confirm authorization mutation test suite efficacy, untrack test SQLite database artifact, and lock down git hygiene.
+
+**Adversarial Security Code Review & Corrections:**
+1. **SQLAlchemy 2.0 Subquery Warning Elimination:** Updated `documents.py` and `audit.py` to use direct `select()` expressions inside `.in_()` clauses rather than `.subquery()`, ensuring forward compatibility with strict SQLAlchemy 2.x and eliminating ORM coercion warnings.
+2. **Pytest Scope Configuration:** Added `pytest.ini` with `asyncio_default_fixture_loop_scope = function` to prevent deprecation warnings during asynchronous fixture resolution.
+3. **Storage & DB Untracking:** Enhanced `.gitignore` to exclude `backend/test_storage/`, `*.db`, and `*.sqlite*` artifacts, ensuring no ephemeral testing storage or database files contaminate git history.
+4. **Verification Results:** Full security test suite executed with 47 passing tests in 29.69s (0 warnings); mutation verification confirmed 15/21 security tests fail loudly when authorization check is intentionally bypassed.
+
+**Git Commit:** 754fa8265f3cbf1f79f12732e918e9fc3b8da879
+
+---
