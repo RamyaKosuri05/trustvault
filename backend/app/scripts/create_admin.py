@@ -14,11 +14,13 @@ import uuid
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from app.core.security import hash_password
-from app.db.session import SessionLocal
-from app.models.user import User
+from app.db.base import Base
+from app.db.session import SessionLocal, engine
+from app.models import User
 
 
 def create_admin(email: str, full_name: str, password: str):
+    Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         normalized_email = email.lower().strip()
@@ -37,14 +39,14 @@ def create_admin(email: str, full_name: str, password: str):
         )
         db.add(admin)
         db.commit()
-        print(f"✅ Admin account created: {normalized_email}")
+        print(f"[SUCCESS] Admin account created: {normalized_email}")
         print(f"   ID: {admin.id}")
         print(f"   Name: {full_name}")
         print(f"   Role: admin")
 
     except Exception as e:
         db.rollback()
-        print(f"❌ Failed to create admin: {e}")
+        print(f"[ERROR] Failed to create admin: {e}")
         sys.exit(1)
     finally:
         db.close()

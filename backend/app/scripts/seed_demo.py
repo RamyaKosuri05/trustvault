@@ -27,11 +27,15 @@ from app.core.config import settings
 from app.core.security import hash_password
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
-from app.models.audit_log import AuditLog
-from app.models.category import Category
-from app.models.document import Document
-from app.models.permission import DocumentPermission
-from app.models.user import User
+from app.models import (
+    AuditLog,
+    Category,
+    Document,
+    DocumentPermission,
+    DocumentVersion,
+    UserSession,
+    User,
+)
 from app.services.audit_service import record_audit_event
 from app.services.storage_service import get_storage
 
@@ -67,7 +71,8 @@ def run_seed(confirm: bool = False):
         print("ERROR: Demo seed requires ALLOW_DEMO_SEED=true env var OR --confirm-demo-seed flag.")
         sys.exit(1)
 
-    print("🌱 Seeding TrustVault demo data...")
+    print("[SEED] Seeding TrustVault demo data...")
+    Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
     try:
@@ -153,7 +158,7 @@ def run_seed(confirm: bool = False):
         _seed_audit_events(db, admin, owner, owner2, viewer, doc1, doc2, doc3, doc4)
         db.commit()
 
-        print("\n✅ Demo seed complete!")
+        print("\n[SUCCESS] Demo seed complete!")
         print("\nDemo Credentials:")
         print(f"  Admin:  admin@trustvault.demo  / {DEMO_PASSWORD_ADMIN}")
         print(f"  Owner:  owner@trustvault.demo  / {DEMO_PASSWORD_OWNER}")
@@ -162,7 +167,7 @@ def run_seed(confirm: bool = False):
 
     except Exception as e:
         db.rollback()
-        print(f"\n❌ Seed failed: {e}")
+        print(f"\n[ERROR] Seed failed: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
