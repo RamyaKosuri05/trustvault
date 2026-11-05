@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, Eye, EyeOff, AlertCircle, Zap, Shield, FileCheck } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -38,127 +38,185 @@ const Login = () => {
     setPassword(demoPass);
   };
 
-  return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  const features = [
+    { icon: Shield, title: 'Zero-Trust Authorization', desc: 'Every request server-verified on each call' },
+    { icon: FileCheck, title: 'Tamper-Evident Audit Trail', desc: 'SHA-256 hash chain on every access event' },
+    { icon: Zap, title: 'Instant Revocation', desc: 'Permissions enforced in real-time, no caching' },
+  ];
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center z-10">
-        <div className="inline-flex p-3 bg-blue-600/20 text-blue-400 rounded-2xl mb-4 border border-blue-500/30 shadow-inner">
-          <ShieldCheck className="w-10 h-10" />
+  return (
+    <div className="min-h-screen flex bg-[#070d1f]">
+      {/* Left Panel — Hero */}
+      <div className="hidden lg:flex lg:w-3/5 relative overflow-hidden flex-col justify-center">
+        {/* Background gradient orbs */}
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#070d1f] via-[#0d1a35] to-[#070d1f]" />
+        <div className="absolute top-20 left-16 w-80 h-80 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-20 right-16 w-96 h-96 bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="relative z-10 px-16 py-12">
+          {/* Logo */}
+          <div className="flex items-center space-x-3 mb-16">
+            <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/40 text-white">
+              <ShieldCheck className="w-7 h-7" />
+            </div>
+            <span className="text-2xl font-bold text-white tracking-tight">TrustVault</span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-5xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+            Share securely.<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+              Trust every access.
+            </span>
+          </h1>
+          <p className="text-slate-400 text-lg mb-12 leading-relaxed max-w-md">
+            Production-grade zero-trust document platform with server-enforced per-document authorization and cryptographic audit trails.
+          </p>
+
+          {/* Feature List */}
+          <div className="space-y-5">
+            {features.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-start space-x-4">
+                <div className="p-2 bg-blue-500/15 rounded-lg border border-blue-500/20 text-blue-400 flex-shrink-0 mt-0.5">
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{title}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Chain indicator */}
+          <div className="mt-14 inline-flex items-center space-x-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs text-emerald-400 font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
+            <span>RISE Security Challenge Edition — Active</span>
+          </div>
         </div>
-        <h2 className="text-3xl font-extrabold text-white tracking-tight">TrustVault</h2>
-        <p className="mt-2 text-sm text-slate-400">
-          Share securely. Track everything. Trust every access.
-        </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md z-10">
-        <div className="bg-slate-800/80 backdrop-blur-md py-8 px-6 shadow-2xl rounded-2xl sm:px-10 border border-slate-700/80">
-          {error && (
-            <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start space-x-3 text-rose-400 text-sm">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
+      {/* Right Panel — Form */}
+      <div className="w-full lg:w-2/5 flex items-center justify-center p-8 relative">
+        <div className="absolute inset-0 bg-[#0a1020]" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/8 rounded-full blur-[80px] pointer-events-none" />
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
-                Email Address
-              </label>
-              <div className="mt-1.5 relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
-                  className="block w-full pl-10 pr-3 py-2.5 bg-slate-900/60 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
+        <div className="relative z-10 w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="lg:hidden flex items-center justify-center space-x-3 mb-8">
+            <div className="p-2 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/40 text-white">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <span className="text-xl font-bold text-white">TrustVault</span>
+          </div>
+
+          <div className="bg-white/[0.04] backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-8 shadow-2xl shadow-black/40">
+            <h2 className="text-xl font-bold text-white mb-1">Sign in</h2>
+            <p className="text-xs text-slate-500 mb-6">Secure session · HttpOnly cookie · Server-enforced</p>
+
+            {error && (
+              <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-start space-x-3 text-rose-400 text-sm">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
               </div>
-            </div>
+            )}
 
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
-                Password
-              </label>
-              <div className="mt-1.5 relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-5 h-5" />
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="block w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition-all duration-200"
+                  />
                 </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="block w-full pl-10 pr-10 py-2.5 bg-slate-900/60 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
               </div>
-            </div>
 
-            <div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="block w-full pl-9 pr-10 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition-all duration-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-slate-800 transition-colors disabled:opacity-50"
+                className="w-full flex justify-center items-center py-2.5 px-4 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 disabled:opacity-50 shadow-lg shadow-blue-600/20 hover:shadow-blue-500/30"
               >
-                {loading ? 'Authenticating...' : 'Sign In with Secure Session'}
+                {loading ? 'Authenticating...' : 'Sign In Securely'}
               </button>
-            </div>
-          </form>
+            </form>
 
-          {/* Quick-fill Demo Credentials (Judges) */}
-          {isDemo && (
-            <div className="mt-8 pt-6 border-t border-slate-700/60">
-              <p className="text-xs font-bold uppercase tracking-wider text-blue-400 text-center mb-3">
-                RISE Judge Quick-Fill Credentials
-              </p>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleQuickFill('admin@trustvault.demo', 'TrustVault#Admin2026!')}
-                  className="px-2 py-1.5 bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 text-xs font-semibold rounded border border-purple-800/60 transition"
-                >
-                  Admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickFill('owner@trustvault.demo', 'TrustVault#Owner2026!')}
-                  className="px-2 py-1.5 bg-blue-900/30 hover:bg-blue-900/50 text-blue-300 text-xs font-semibold rounded border border-blue-800/60 transition"
-                >
-                  Owner
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickFill('viewer@trustvault.demo', 'TrustVault#Viewer2026!')}
-                  className="px-2 py-1.5 bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-300 text-xs font-semibold rounded border border-emerald-800/60 transition"
-                >
-                  Viewer
-                </button>
+            {/* Demo Credentials */}
+            {isDemo && (
+              <div className="mt-6 pt-5 border-t border-white/5">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-400/80 text-center mb-3">
+                  RISE Judge Credentials
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill('admin@trustvault.demo', 'TrustVault#Admin2026!')}
+                    className="px-2 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-xs font-semibold rounded-lg border border-purple-500/20 transition-all duration-200"
+                  >
+                    Admin
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill('owner@trustvault.demo', 'TrustVault#Owner2026!')}
+                    className="px-2 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 text-xs font-semibold rounded-lg border border-blue-500/20 transition-all duration-200"
+                  >
+                    Owner
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill('viewer@trustvault.demo', 'TrustVault#Viewer2026!')}
+                    className="px-2 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold rounded-lg border border-emerald-500/20 transition-all duration-200"
+                  >
+                    Viewer
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="mt-6 text-center">
-            <span className="text-xs text-slate-400">
-              Need an account?{' '}
-              <Link to="/register" className="font-semibold text-blue-400 hover:text-blue-300">
-                Self-register here
-              </Link>
-            </span>
+            <div className="mt-5 text-center">
+              <span className="text-xs text-slate-600">
+                Need an account?{' '}
+                <Link to="/register" className="font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+                  Self-register here
+                </Link>
+              </span>
+            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, Lock, Mail, User, AlertCircle, CheckCircle } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, User, AlertCircle, CheckCircle, HardDrive, Eye, Shield } from 'lucide-react';
 
 const Register = () => {
   const [fullName, setFullName] = useState('');
@@ -29,151 +29,189 @@ const Register = () => {
       setError(
         err.response?.data?.detail || 
         err.response?.data?.message || 
-        'Registration failed. Please check your inputs.'
+        'Registration failed. Please try again.'
       );
     } finally {
       setLoading(false);
     }
   };
 
+  const roleInfo = {
+    viewer: { label: 'Viewer', desc: 'Read documents shared with you', color: 'emerald' },
+    owner: { label: 'Owner', desc: 'Upload, share & manage documents', color: 'blue' },
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center z-10">
-        <div className="inline-flex p-3 bg-blue-600/20 text-blue-400 rounded-2xl mb-4 border border-blue-500/30">
-          <ShieldCheck className="w-10 h-10" />
+    <div className="min-h-screen flex bg-[#070d1f]">
+      {/* Left Panel — Hero */}
+      <div className="hidden lg:flex lg:w-3/5 relative overflow-hidden flex-col justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#070d1f] via-[#0d1a35] to-[#070d1f]" />
+        <div className="absolute top-20 left-16 w-80 h-80 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-20 right-16 w-96 h-96 bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
+
+        <div className="relative z-10 px-16 py-12">
+          <div className="flex items-center space-x-3 mb-16">
+            <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/40 text-white">
+              <ShieldCheck className="w-7 h-7" />
+            </div>
+            <span className="text-2xl font-bold text-white tracking-tight">TrustVault</span>
+          </div>
+
+          <h1 className="text-5xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+            Your vault.<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">
+              Your rules.
+            </span>
+          </h1>
+          <p className="text-slate-400 text-lg mb-12 leading-relaxed max-w-md">
+            Create a free account to start sharing documents securely, or request read-only access to documents shared with you.
+          </p>
+
+          <div className="space-y-5">
+            {[
+              { icon: HardDrive, title: 'Owner', desc: 'Upload confidential documents and control who accesses them.' },
+              { icon: Eye, title: 'Viewer', desc: 'View and download documents shared exclusively with you.' },
+              { icon: Shield, title: 'Zero Trust', desc: 'Admin accounts provisioned exclusively via secure CLI.' },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-start space-x-4">
+                <div className="p-2 bg-indigo-500/15 rounded-lg border border-indigo-500/20 text-indigo-400 flex-shrink-0 mt-0.5">
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{title}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <h2 className="text-3xl font-extrabold text-white tracking-tight">Create Account</h2>
-        <p className="mt-2 text-sm text-slate-400">
-          Self-register as a Document Owner or Viewer
-        </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md z-10">
-        <div className="bg-slate-800/80 backdrop-blur-md py-8 px-6 shadow-2xl rounded-2xl sm:px-10 border border-slate-700/80">
-          {error && (
-            <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start space-x-3 text-rose-400 text-sm">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
+      {/* Right Panel — Form */}
+      <div className="w-full lg:w-2/5 flex items-center justify-center p-8 relative">
+        <div className="absolute inset-0 bg-[#0a1020]" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/8 rounded-full blur-[80px] pointer-events-none" />
 
-          {success && (
-            <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start space-x-3 text-emerald-400 text-sm">
-              <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <span>{success}</span>
+        <div className="relative z-10 w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="lg:hidden flex items-center justify-center space-x-3 mb-8">
+            <div className="p-2 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/40 text-white">
+              <ShieldCheck className="w-6 h-6" />
             </div>
-          )}
+            <span className="text-xl font-bold text-white">TrustVault</span>
+          </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
-                Full Name
-              </label>
-              <div className="mt-1 relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <User className="w-5 h-5" />
+          <div className="bg-white/[0.04] backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-8 shadow-2xl shadow-black/40">
+            <h2 className="text-xl font-bold text-white mb-1">Create Account</h2>
+            <p className="text-xs text-slate-500 mb-6">Self-register as Owner or Viewer</p>
+
+            {error && (
+              <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-start space-x-3 text-rose-400 text-sm">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {success && (
+              <div className="mb-5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start space-x-3 text-emerald-400 text-sm">
+                <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>{success}</span>
+              </div>
+            )}
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Full Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Alice Smith"
+                    className="block w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition-all duration-200"
+                  />
                 </div>
-                <input
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Alice Smith"
-                  className="block w-full pl-10 pr-3 py-2 bg-slate-900/60 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
-                Email Address
-              </label>
-              <div className="mt-1 relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-5 h-5" />
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Email Address</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="alice@company.com"
+                    className="block w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition-all duration-200"
+                  />
                 </div>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="alice@company.com"
-                  className="block w-full pl-10 pr-3 py-2 bg-slate-900/60 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
-                Password (min 10 characters)
-              </label>
-              <div className="mt-1 relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-5 h-5" />
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Password (min 10 chars)</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    minLength={10}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="block w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition-all duration-200"
+                  />
                 </div>
-                <input
-                  type="password"
-                  required
-                  minLength={10}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="block w-full pl-10 pr-3 py-2 bg-slate-900/60 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
-                Requested Role
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setRole('viewer')}
-                  className={`py-2 px-3 border rounded-lg text-xs font-semibold text-center transition ${
-                    role === 'viewer'
-                      ? 'bg-blue-600/30 border-blue-500 text-white'
-                      : 'bg-slate-900/40 border-slate-700 text-slate-400 hover:border-slate-600'
-                  }`}
-                >
-                  Viewer (Read Shared)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole('owner')}
-                  className={`py-2 px-3 border rounded-lg text-xs font-semibold text-center transition ${
-                    role === 'owner'
-                      ? 'bg-blue-600/30 border-blue-500 text-white'
-                      : 'bg-slate-900/40 border-slate-700 text-slate-400 hover:border-slate-600'
-                  }`}
-                >
-                  Owner (Upload & Share)
-                </button>
+              {/* Role Selector */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Role</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(roleInfo).map(([key, { label, desc, color }]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setRole(key)}
+                      className={`py-3 px-3 border rounded-lg text-left transition-all duration-200 ${
+                        role === key
+                          ? `bg-${color}-500/15 border-${color}-500/40 text-white`
+                          : 'bg-white/[0.03] border-white/[0.07] text-slate-500 hover:border-white/15 hover:text-slate-400'
+                      }`}
+                    >
+                      <p className={`text-xs font-bold ${role === key ? `text-${color}-300` : ''}`}>{label}</p>
+                      <p className="text-[10px] mt-0.5 leading-tight">{desc}</p>
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1.5 text-[10px] text-slate-600">Admin accounts are provisioned via secure CLI only.</p>
               </div>
-              <p className="mt-1 text-[11px] text-slate-500">
-                Admin accounts are provisioned exclusively via CLI.
-              </p>
-            </div>
 
-            <div className="pt-2">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:opacity-50"
+                className="w-full flex justify-center items-center py-2.5 px-4 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 disabled:opacity-50 shadow-lg shadow-blue-600/20 mt-2"
               >
                 {loading ? 'Creating Account...' : 'Complete Registration'}
               </button>
-            </div>
-          </form>
+            </form>
 
-          <div className="mt-6 text-center">
-            <span className="text-xs text-slate-400">
-              Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-blue-400 hover:text-blue-300">
-                Sign in here
-              </Link>
-            </span>
+            <div className="mt-5 text-center">
+              <span className="text-xs text-slate-600">
+                Already have an account?{' '}
+                <Link to="/login" className="font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+                  Sign in here
+                </Link>
+              </span>
+            </div>
           </div>
         </div>
       </div>

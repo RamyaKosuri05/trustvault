@@ -26,6 +26,11 @@ from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.models.audit_log import AuditLog
 
+# Global advisory lock key — fixed 32-bit integer used to serialize all audit chain
+# inserts across PostgreSQL connections using pg_advisory_xact_lock.
+ADVISORY_LOCK_KEY = 84729103
+
+
 def _acquire_advisory_lock_if_supported(db: Session) -> None:
     """Acquire transaction-scoped advisory lock if running on PostgreSQL."""
     try:
@@ -59,12 +64,20 @@ def _compute_event_hash(previous_hash: str, canonical_json: str) -> str:
 
 
 def _get_latest_audit_row(db: Session) -> Optional[AuditLog]:
-    """Get the most recent audit log row (highest sequence_number). Caller holds advisory lock."""
-    return (
-        db.query(AuditLog)
-        .order_by(AuditLog.sequence_number.desc())
-        .first()
-    )
+    """Get the most recent audit log row (highest sequence_number).
+    Uses SELECT ... FOR UPDATE on PostgreSQL to block concurrent reads
+    until the previous insert commits, preventing hash chain forks.
+    On SQLite this falls back gracefully (FOR UPDATE is a no-op).
+    Caller MUST hold pg_advisory_xact_lock before calling this.
+    """
+    q = db.query(AuditLog).order_by(AuditLog.sequence_number.desc())
+    try:
+        # with_for_update() ensures the second concurrent transaction blocks
+        # until the first has committed its new row — prevents duplicate seq nums
+        q = q.with_for_update()
+    except Exception:
+        pass
+    return q.first()
 
 
 def _build_and_insert_audit(

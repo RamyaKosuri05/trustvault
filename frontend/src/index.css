@@ -4,7 +4,33 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-800 font-sans;
+    @apply bg-[#070d1f] text-slate-100 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * {
+    @apply transition-colors;
+  }
+}
+
+@layer utilities {
+  .glow-blue {
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+  }
+  .glow-blue-sm {
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+  }
+  .glow-emerald {
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  }
+  .glow-rose {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  }
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  .glass-dark {
+    @apply bg-[#0d1424]/80 backdrop-blur-xl border border-white/5;
   }
 }
 

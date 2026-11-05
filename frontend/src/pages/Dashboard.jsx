@@ -13,6 +13,29 @@ import {
   AlertTriangle 
 } from 'lucide-react';
 
+const StatCard = ({ label, value, sub, icon: Icon, color = 'blue', accent }) => {
+  const colors = {
+    blue: { bg: 'bg-blue-500/10', icon: 'text-blue-400', border: 'border-blue-500/20', val: 'text-blue-300' },
+    emerald: { bg: 'bg-emerald-500/10', icon: 'text-emerald-400', border: 'border-emerald-500/20', val: 'text-emerald-300' },
+    rose: { bg: 'bg-rose-500/10', icon: 'text-rose-400', border: 'border-rose-500/20', val: 'text-rose-300' },
+    purple: { bg: 'bg-purple-500/10', icon: 'text-purple-400', border: 'border-purple-500/20', val: 'text-purple-300' },
+    slate: { bg: 'bg-white/5', icon: 'text-slate-400', border: 'border-white/[0.08]', val: 'text-white' },
+  };
+  const c = colors[color] || colors.slate;
+  return (
+    <div className={`bg-white/[0.03] border ${c.border} rounded-xl p-5 hover:bg-white/[0.05] transition-all duration-200`}>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">{label}</span>
+        <div className={`p-1.5 ${c.bg} rounded-lg ${c.icon}`}>
+          <Icon className="w-3.5 h-3.5" />
+        </div>
+      </div>
+      <div className={`text-2xl font-bold ${accent || c.val}`}>{value}</div>
+      {sub && <p className="text-[11px] text-slate-600 mt-1">{sub}</p>}
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const { user, isAdmin, isOwner, isViewer } = useAuth();
   const [data, setData] = useState(null);
@@ -44,7 +67,7 @@ const Dashboard = () => {
     return (
       <div className="flex items-center justify-center h-64 text-slate-500 text-sm">
         <Clock className="w-5 h-5 animate-spin mr-2" />
-        Loading Live Metrics...
+        Loading live metrics...
       </div>
     );
   }
@@ -52,167 +75,90 @@ const Dashboard = () => {
   return (
     <div className="space-y-8">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 p-6 rounded-2xl border border-slate-700/80 shadow-md text-white">
-        <div className="flex justify-between items-center">
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600/20 via-indigo-600/10 to-transparent border border-blue-500/20 rounded-2xl p-6">
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-bold">Welcome back, {user?.full_name}</h1>
+            <h1 className="text-xl font-bold text-white">Welcome back, {user?.full_name}</h1>
             <p className="text-sm text-slate-400 mt-1">
-              Active Role: <span className="text-blue-400 font-semibold uppercase">{user?.role}</span> — All access enforced via server-side authorization engine.
+              Active Role:{' '}
+              <span className="text-blue-400 font-semibold uppercase">{user?.role}</span>
+              {' '}— Server-side authorization enforced on every request.
             </p>
           </div>
-          <div className="hidden sm:flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>Zero-Trust Enforced</span>
+          <div className="hidden sm:flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg text-xs text-emerald-400 font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
+            <span>Zero-Trust Active</span>
           </div>
         </div>
       </div>
 
-      {/* ADMIN SECURITY COMMAND CENTER */}
+      {/* ADMIN DASHBOARD */}
       {isAdmin && data && (
-        <div className="space-y-6">
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-800 flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-blue-600" />
-              <span>Admin Security & Governance Command Center</span>
+            <h2 className="text-sm font-bold text-slate-300 flex items-center space-x-2 uppercase tracking-wider">
+              <ShieldCheck className="w-4 h-4 text-blue-400" />
+              <span>Security Command Center</span>
             </h2>
-            <div className="flex items-center space-x-2">
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                data.chain_valid ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-              }`}>
-                {data.chain_valid ? 'SHA-256 Chain Intact' : 'Chain Tampered / Broken!'}
-              </span>
-            </div>
+            <span className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+              data.chain_valid
+                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25 shadow-[0_0_10px_rgba(16,185,129,0.15)]'
+                : 'bg-rose-500/15 text-rose-300 border-rose-500/25 shadow-[0_0_10px_rgba(239,68,68,0.15)]'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${data.chain_valid ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+              <span>{data.chain_valid ? 'SHA-256 Chain Intact' : 'Chain Tampered!'}</span>
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Total Users</span>
-                <Users className="w-4 h-4 text-slate-400" />
-              </div>
-              <div className="text-2xl font-bold text-slate-800">{data.total_users}</div>
-              <p className="text-xs text-slate-400 mt-1">{data.active_users} active accounts</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Managed Documents</span>
-                <FileText className="w-4 h-4 text-slate-400" />
-              </div>
-              <div className="text-2xl font-bold text-slate-800">{data.total_documents}</div>
-              <p className="text-xs text-purple-600 font-medium mt-1">Metadata inventory only</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Audit Events</span>
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              </div>
-              <div className="text-2xl font-bold text-slate-800">{data.total_audit_events}</div>
-              <p className="text-xs text-emerald-600 font-medium mt-1">Hashed & serialized</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Security Alerts (24h)</span>
-                <ShieldAlert className="w-4 h-4 text-rose-600" />
-              </div>
-              <div className="text-2xl font-bold text-rose-600">{data.denied_events_last_24h}</div>
-              <p className="text-xs text-rose-500 mt-1">{data.failed_logins_last_24h} failed logins</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard label="Total Users" value={data.total_users} sub={`${data.active_users} active`} icon={Users} color="blue" />
+            <StatCard label="Managed Documents" value={data.total_documents} sub="Metadata inventory only" icon={FileText} color="purple" />
+            <StatCard label="Audit Events" value={data.total_audit_events} sub="Hashed & serialized" icon={ShieldCheck} color="emerald" />
+            <StatCard label="Security Alerts (24h)" value={data.denied_events_last_24h} sub={`${data.failed_logins_last_24h} failed logins`} icon={ShieldAlert} color="rose" accent="text-rose-300" />
           </div>
 
-          <div className="p-4 bg-purple-50 rounded-xl border border-purple-200 text-xs text-purple-900 leading-relaxed">
-            <span className="font-bold">Governance Note:</span> As an Administrator, you have system oversight, user lifecycle control, and metadata visibility. In accordance with zero-trust principles, file bytes are cryptographically restricted from download unless an owner explicitly shares with you.
+          <div className="p-4 bg-purple-500/8 rounded-xl border border-purple-500/15 text-xs text-purple-300/80 leading-relaxed">
+            <span className="font-bold text-purple-300">Governance Note:</span> As an Administrator, you have system oversight, user lifecycle control, and metadata visibility. File bytes are cryptographically restricted from download unless an owner explicitly shares with you.
           </div>
         </div>
       )}
 
-      {/* OWNER VAULT OVERVIEW */}
+      {/* OWNER DASHBOARD */}
       {isOwner && data && (
-        <div className="space-y-6">
-          <h2 className="text-base font-bold text-slate-800 flex items-center space-x-2">
-            <HardDrive className="w-5 h-5 text-blue-600" />
+        <div className="space-y-5">
+          <h2 className="text-sm font-bold text-slate-300 flex items-center space-x-2 uppercase tracking-wider">
+            <HardDrive className="w-4 h-4 text-blue-400" />
             <span>Document Vault Overview</span>
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Owned Documents</span>
-                <FileText className="w-4 h-4 text-slate-400" />
-              </div>
-              <div className="text-2xl font-bold text-slate-800">{data.total_documents}</div>
-              <p className="text-xs text-slate-400 mt-1">Across all categories</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Shared Documents</span>
-                <Share2 className="w-4 h-4 text-blue-500" />
-              </div>
-              <div className="text-2xl font-bold text-blue-600">{data.shared_documents}</div>
-              <p className="text-xs text-slate-400 mt-1">With active permissions</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Active Grants</span>
-                <Users className="w-4 h-4 text-emerald-500" />
-              </div>
-              <div className="text-2xl font-bold text-emerald-600">{data.total_permissions_granted}</div>
-              <p className="text-xs text-slate-400 mt-1">Read & Edit combined</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Private Storage Used</span>
-                <HardDrive className="w-4 h-4 text-slate-400" />
-              </div>
-              <div className="text-2xl font-bold text-slate-800">
-                {(data.storage_used_bytes / (1024 * 1024)).toFixed(2)} MB
-              </div>
-              <p className="text-xs text-slate-400 mt-1">Encrypted on persistent volume</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard label="Owned Documents" value={data.total_documents} sub="Across all categories" icon={FileText} color="slate" />
+            <StatCard label="Shared Documents" value={data.shared_documents} sub="With active permissions" icon={Share2} color="blue" />
+            <StatCard label="Active Grants" value={data.total_permissions_granted} sub="Read & Edit combined" icon={Users} color="emerald" />
+            <StatCard
+              label="Storage Used"
+              value={`${(data.storage_used_bytes / (1024 * 1024)).toFixed(2)} MB`}
+              sub="Encrypted on volume"
+              icon={HardDrive}
+              color="slate"
+            />
           </div>
         </div>
       )}
 
-      {/* VIEWER SHARED WORKSPACE */}
+      {/* VIEWER DASHBOARD */}
       {isViewer && data && (
-        <div className="space-y-6">
-          <h2 className="text-base font-bold text-slate-800 flex items-center space-x-2">
-            <Share2 className="w-5 h-5 text-blue-600" />
+        <div className="space-y-5">
+          <h2 className="text-sm font-bold text-slate-300 flex items-center space-x-2 uppercase tracking-wider">
+            <Share2 className="w-4 h-4 text-blue-400" />
             <span>Shared Workspace</span>
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Accessible Docs</span>
-                <FileText className="w-4 h-4 text-slate-400" />
-              </div>
-              <div className="text-2xl font-bold text-slate-800">{data.shared_with_me}</div>
-              <p className="text-xs text-slate-400 mt-1">Directly granted to you</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Read Only Access</span>
-                <FileText className="w-4 h-4 text-blue-400" />
-              </div>
-              <div className="text-2xl font-bold text-blue-600">{data.read_access_count}</div>
-              <p className="text-xs text-slate-400 mt-1">Download & view</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider">Edit Permissions</span>
-                <Share2 className="w-4 h-4 text-emerald-500" />
-              </div>
-              <div className="text-2xl font-bold text-emerald-600">{data.edit_access_count}</div>
-              <p className="text-xs text-slate-400 mt-1">Metadata & version upload</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <StatCard label="Accessible Docs" value={data.shared_with_me} sub="Directly granted to you" icon={FileText} color="slate" />
+            <StatCard label="Read Only Access" value={data.read_access_count} sub="Download & view" icon={Download} color="blue" />
+            <StatCard label="Edit Permissions" value={data.edit_access_count} sub="Metadata & version upload" icon={Share2} color="emerald" />
           </div>
         </div>
       )}
