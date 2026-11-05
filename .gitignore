@@ -156,3 +156,6 @@ backend/tests/*.db
 *.log
 logs/
 
+
+.vercel
+.env*

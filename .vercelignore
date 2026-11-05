@@ -1,0 +1,7 @@
+backend/
+docs/
+.git/
+frontend/node_modules/
+frontend/dist/
+frontend/.vercel/
+

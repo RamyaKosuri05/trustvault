@@ -366,3 +366,36 @@ and also add dark and light mode for the frontend and password visibility button
 - `b220783` — `feat(core): linear ui overhaul, strict login routing, and cold-start timeout handling`
 
 ---
+
+### Entry 017 — 2026-11-06 | Vercel CLI Direct Production Deployment, Account Identity Alignment & Live Production Verification
+**Tool:** Antigravity
+
+**Prompt:**
+"CRITICAL VERCEL DEPLOYMENT BYPASS: The manual Vercel dashboard redeployment is blocked due to 'Hobby team collaboration' upgrade pop-ups. We must bypass the GitHub integration entirely and force a direct production deployment using the Vercel CLI right from the terminal.
+1. Install Vercel CLI Globally: npm i -g vercel
+2. Login to Vercel via CLI: vercel login
+3. Link the Project: inside frontend directory, vercel link to existing project (trustvault).
+4. Force Production Deployment: vercel --prod --yes
+5. Verify live production domain https://trustvault-roan.vercel.app with zero errors."
+
+**Root-Cause Diagnosis & Fixes:**
+1. **Vercel CLI Version & Symlink Compatibility:**
+   - Upgraded Vercel CLI to `65.11.0` (native binary) to resolve outdated Node runtime and socket reset bugs present in legacy `54.x`.
+   - Added `.vercelignore` to exclude local `node_modules/` and build artifacts from CLI payload upload, preventing connection timeouts.
+2. **Author Identity Mismatch vs Vercel Account Owner:**
+   - Discovered that Vercel was blocking deployments with: `"The deployment was blocked because Vercel couldn’t find a Git account for the commit author"`.
+   - Inspected Vercel API user endpoint: authenticated Vercel user is `ramyakosuri5-3732` with email `ramyakosuri5@gmail.com` (without the '0').
+   - Harmonized local Git author identity to `ramyakosuri5 <ramyakosuri5@gmail.com>`, resolving Vercel's author verification constraint.
+3. **Project Settings & Node Runtime Alignment:**
+   - Executed `vercel project update trustvault --node-version 24.x --auto-detect root-directory --yes`, correcting the Node version setting from `26.x` to `24.x` and aligning the root directory to repository root `.`.
+4. **Direct Production Deployment:**
+   - Executed `vercel --prod --yes` from `frontend/`, uploading source files directly to Vercel build infrastructure.
+   - Deployment `dpl_8RMgdmghPadzpvPLjeaRG2GUwcbp` transitioned through `INITIALIZING` → `BUILDING` → `READY`.
+   - Automatically aliased to `https://trustvault-roan.vercel.app` and `https://trustvault-ramyakosuri5-3732s-projects.vercel.app`.
+
+**Live Production Verification:**
+- Production URL: `https://trustvault-roan.vercel.app` → **HTTP 200 OK** ✅
+- Bundle Verification: Verified live script `index-BNlj13xZ.js` containing Linear transparent styling and cold-start handler ✅
+- API Proxy Verification: Tested `https://trustvault-roan.vercel.app/api/v1/categories` → **HTTP 401 Unauthorized** (confirms Vercel same-origin `/api/:path*` reverse proxy cleanly rewrites to Render backend `https://trustvault-api-fot1.onrender.com/api/:path*`) ✅
+
+---
