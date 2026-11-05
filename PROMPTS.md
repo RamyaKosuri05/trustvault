@@ -261,3 +261,33 @@ The following core invariants were established at project initialization and gov
 - `9afa084` — `feat(ui): complete dark glassmorphic overhaul across remaining pages`
 
 ---
+
+
+### Entry 012 — 2026-11-05 | Add email-validator, Configure Live Render API in Vercel, and Add Dark/Light Theme & Password Visibility
+**Tool:** Antigravity
+
+**Prompt:** "Render deployment crashed with: `ImportError: email-validator is not installed, run pip install pydantic[email]`
+1. Add `email-validator>=2.1.0` to `backend/requirements.txt`.
+2. Update `frontend/vercel.json` rewrite destination with our live Render URL: `https://trustvault-api-fot1.onrender.com/api/:path*`
+3. Commit both fixes with message: `fix(deps): add email-validator and configure live render api in vercel.json`
+4. Update `PROMPTS.md` as Entry 012 and push to `origin/main`.
+and also add dark and light mode for the frontend and password visibility button too"
+
+**Task & Resolutions:**
+1. **Pydantic EmailStr Dependency Fix:** Added `email-validator>=2.1.0` to `backend/requirements.txt` to eliminate the `ImportError: email-validator is not installed` crash on Render container startup when Pydantic compiles `EmailStr` schema validations.
+2. **Vercel Reverse Proxy Live URL Configuration:** Updated `frontend/vercel.json` rewrite rule from placeholder `https://trustvault-backend.onrender.com/api/:path*` to the deployed Render service URL `https://trustvault-api-fot1.onrender.com/api/:path*`. This routes all `/api/*` frontend calls directly through Vercel's edge proxy with same-origin cookie semantics preserved.
+3. **Password Visibility Toggle:** Added `showPassword` state and an accessible show/hide password toggle button (`Eye` / `EyeOff` icons with `aria-label`) to `frontend/src/pages/Register.jsx` to complement the existing toggle on `Login.jsx`.
+4. **Comprehensive Dark & Light Theme Support:**
+   - Created `frontend/src/context/ThemeContext.jsx` with persistent `localStorage` synchronization and system preference detection (`prefers-color-scheme`).
+   - Enabled `darkMode: 'class'` in `frontend/tailwind.config.js`.
+   - Created `frontend/src/components/common/ThemeToggle.jsx` with animated `Sun` and `Moon` icons.
+   - Integrated `ThemeToggle` into `Layout.jsx` (top header) and floating on `Login.jsx` & `Register.jsx`.
+   - Updated component styling across `Dashboard.jsx`, `Documents.jsx`, `AuditLogs.jsx`, `UserManagement.jsx`, `Categories.jsx`, `UploadDocument.jsx`, and `DocumentDetail.jsx` with cohesive dual-theme classes (`dark:` variants) ensuring high contrast and modern glassmorphic aesthetics in both light and dark modes.
+
+**Verification:**
+- `pytest tests/ -q` → **59 passed in 43.78s** ✅
+- `npm run build` → **1659 modules transformed, built in 10.62s, zero errors** ✅
+
+**Git Commit:** 1733fb5 (fix(deps): add email-validator and configure live render api in vercel.json)
+
+---
