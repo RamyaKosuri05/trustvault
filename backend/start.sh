@@ -11,5 +11,5 @@ fi
 
 PORT="${PORT:-8000}"
 echo "[STARTUP] Launching TrustVault API on port $PORT..."
-exec gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker --bind "0.0.0.0:$PORT" --timeout 120 --access-logfile -
+exec gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker --bind "0.0.0.0:$PORT" --forwarded-allow-ips="*" --timeout 120 --access-logfile -
 

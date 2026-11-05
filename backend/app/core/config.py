@@ -4,7 +4,7 @@ Loads settings from environment variables with Pydantic Settings v2.
 """
 from functools import lru_cache
 import os
-from typing import List
+from typing import List, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import field_validator
 
@@ -39,6 +39,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "CHANGE_THIS_TO_A_RANDOM_64_CHAR_HEX_STRING"
     SESSION_EXPIRE_HOURS: int = 24
     SESSION_COOKIE_SECURE: bool = False  # True in production
+    SESSION_COOKIE_SAMESITE: str = "lax"  # "lax" or "strict"
+    SESSION_COOKIE_DOMAIN: Optional[str] = None
 
     # CORS
     CORS_ORIGINS: str = "http://localhost:5173"

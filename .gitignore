@@ -143,9 +143,13 @@ test-results/
 pytest.ini
 backend/test_storage/
 test_storage/
+**/test_storage/
 *.db
+**/*.db
 *.db-journal
+**/*.db-journal
 *.sqlite*
+**/*.sqlite*
 backend/tests/*.db
 
 # Logs
