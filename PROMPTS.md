@@ -291,3 +291,43 @@ and also add dark and light mode for the frontend and password visibility button
 **Git Commit:** 1733fb5 (fix(deps): add email-validator and configure live render api in vercel.json)
 
 ---
+
+### Entry 015 — 2026-11-05 | Linear Dark Cyber-Minimalism Design Overhaul, Root Login Landing & Cloud Cold-Start Timeout Handshake
+**Tool:** Antigravity
+
+**Prompt:**
+"Execute three critical updates across the TrustVault project simultaneously:
+1. Default Landing Route Must Be the Modern Login Page (root `/` navigate directly to `/login`, preserving quick demo login pills).
+2. Frontend Backend Cold-Start Timeout & Graceful Session Handshake (12-15s timeout on initial `/auth/me`, immediately clear user to null, set loading to false, route to `/login`, show cold-start notification banner and animated authenticating state).
+3. Complete UI Overhaul to 'Linear Dark Cyber-Minimalism' (obsidian canvas #08090C, radial indigo ambient glow, glassmorphic cards bg-slate-900/50, hover glow transitions, font-mono precision badges, emerald pinging pulse on ZERO-TRUST ENGINE ACTIVE, strict role segregation)."
+
+**What Was Built & Changed:**
+1. **Default Landing Route (`frontend/src/App.jsx`):**
+   - Configured root route `<Route path="/" element={<Navigate to="/login" replace />} />` so visitors land directly on the Login view without attempting automatic dashboard redirects.
+   - Updated catch-all route `<Route path="*" element={<Navigate to="/login" replace />} />`.
+   - Updated `ProtectedRoute` loading state to display a sleek Linear-style spinner and status text.
+2. **Cold-Start Timeout & Session Handshake (`AuthContext.jsx`, `authService.js`, `api.js`, `Login.jsx`):**
+   - In `frontend/src/services/authService.js`, added `{ timeout: 12000 }` specifically for the initial `getMe()` verification.
+   - In `frontend/src/context/AuthContext.jsx`, handled timeout codes (`ECONNABORTED`), HTTP gateway responses (`502`, `503`, `504`), and network dropouts by immediately terminating the blocker (`setIsLoading(false)` / `setUser(null)`) and recording `serverColdStart: true`.
+   - In `frontend/src/pages/Login.jsx`, rendered an informative cold-start banner when `serverColdStart` is detected: *"⚡ Cloud backend is initializing secure context (~30s). Please sign in using the demo pills below."*
+   - Added animated submit button loading state: *"Authenticating..."* with spinning spinner.
+   - Preserved 1-click evaluator demo credentials (Owner, Viewer, Admin) prominently on `/login`.
+3. **Linear Dark Cyber-Minimalism Overhaul Across All Pages:**
+   - **`frontend/src/index.css`:** Added `.obsidian-canvas` (`#08090C`), `.linear-card`, `.mono-pill`, and radial ambient glow backgrounds.
+   - **`frontend/src/components/layout/Layout.jsx`:** Added radial top glow `bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.12),rgba(0,0,0,0))]`, animated emerald pulsing ping dot for `ZERO-TRUST ENGINE ACTIVE`, high-contrast navigation with subtle active indicators, and strict role segregation.
+   - **`frontend/src/pages/Dashboard.jsx`:** Glassmorphic cards with `#08090C` integration, high-contrast monospace tags, glowing emerald/rose status badges, and strict role segregation (Admin view has zero upload buttons).
+   - **`frontend/src/pages/Documents.jsx`:** Data-grid with `bg-slate-900/50 backdrop-blur-xl`, monospace precision badges for size/version and filenames, glowing search inputs, and strict owner-only upload button (`user?.role === 'owner'`).
+   - **`frontend/src/pages/AuditLogs.jsx`:** Connected hash chain with numbered sequence badges, glowing link icons, monospace pills for `previous_hash` and `event_hash`, glowing emerald/rose status tags, and styled checkpoint export/verification controls.
+   - **`frontend/src/pages/UserManagement.jsx`:** Clean Linear data-table, monospace tags for email and creation timestamps, scoped deactivation actions with confirmation dialogs.
+   - **`frontend/src/pages/DocumentDetail.jsx`:** Sleek overview cards with monospace checksum, MIME type, and version pills, plus role-enforced access grant forms and permission tables.
+   - **`frontend/src/pages/UploadDocument.jsx`:** Dashed dropzone with indigo hover transitions, dark monospace inputs, and styled submit buttons.
+   - **`frontend/src/pages/Register.jsx`:** Cohesive split-screen layout matching `/login` with dark cyber-minimalist hero and floating glass form.
+   - **`frontend/src/pages/Categories.jsx`:** Minimalist category manager with dark inputs and table styling.
+
+**Verification:**
+- `npm run build` in `frontend/` → **1659 modules transformed, built in 12.15s, 0 errors** ✅
+- `python -m pytest tests/ -q` in `backend/` → **59 passed in 36.91s, 0 failures** ✅
+
+**Git Commit:** ba2c2a0 (feat(ui,auth): linear design overhaul, root login landing, and cold-start timeout handling)
+
+---
