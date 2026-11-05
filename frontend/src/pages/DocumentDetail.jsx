@@ -123,7 +123,7 @@ const DocumentDetail = () => {
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-white transition"
+          className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -131,14 +131,14 @@ const DocumentDetail = () => {
       </div>
 
       {/* Document Overview Card */}
-      <div className="bg-white/[0.03] backdrop-blur-xl p-6 rounded-2xl border border-white/[0.08] shadow-sm space-y-5">
+      <div className="bg-white dark:bg-white/[0.03] backdrop-blur-xl p-6 rounded-2xl border border-slate-200 dark:border-white/[0.08] shadow-sm space-y-5">
         <div className="flex items-start justify-between">
           <div>
             <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-md border ${permBadge}`}>
               {doc.user_permission || 'Metadata Only'}
             </span>
-            <h1 className="text-2xl font-bold text-white mt-2 tracking-tight">{doc.name}</h1>
-            <p className="text-xs text-slate-400 mt-1">{doc.description || 'No description provided.'}</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mt-2 tracking-tight">{doc.name}</h1>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{doc.description || 'No description provided.'}</p>
           </div>
           {doc.can_download && (
             <button
@@ -151,42 +151,42 @@ const DocumentDetail = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/5 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-white/5 text-xs">
           <div>
             <span className="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold">Original File</span>
-            <span className="font-mono text-slate-300 text-[11px] truncate block">{doc.original_filename}</span>
+            <span className="font-mono text-slate-800 dark:text-slate-300 text-[11px] truncate block">{doc.original_filename}</span>
           </div>
           <div>
             <span className="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold">Size & Version</span>
-            <span className="text-slate-300">{(doc.file_size / 1024).toFixed(1)} KB (v{doc.version_number})</span>
+            <span className="text-slate-800 dark:text-slate-300">{(doc.file_size / 1024).toFixed(1)} KB (v{doc.version_number})</span>
           </div>
           <div>
             <span className="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold">MIME Type</span>
-            <span className="font-mono text-slate-300 text-[11px]">{doc.mime_type}</span>
+            <span className="font-mono text-slate-800 dark:text-slate-300 text-[11px]">{doc.mime_type}</span>
           </div>
           <div>
             <span className="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold">SHA-256 Checksum</span>
-            <span className="font-mono text-[10px] text-blue-400">{doc.checksum_sha256?.substring(0, 16)}...</span>
+            <span className="font-mono text-[10px] text-blue-600 dark:text-blue-400">{doc.checksum_sha256?.substring(0, 16)}...</span>
           </div>
         </div>
       </div>
 
       {/* Permissions Management (Owner or Admin) */}
       {(doc.user_permission === 'owner' || user?.role === 'admin') && (
-        <div className="bg-white/[0.03] backdrop-blur-xl p-6 rounded-2xl border border-white/[0.08] shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-white/5 pb-4">
+        <div className="bg-white dark:bg-white/[0.03] backdrop-blur-xl p-6 rounded-2xl border border-slate-200 dark:border-white/[0.08] shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-4">
             <div className="flex items-center space-x-2.5">
-              <Key className="w-5 h-5 text-blue-400" />
-              <h2 className="text-base font-bold text-white">Document Access Grants</h2>
+              <Key className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">Document Access Grants</h2>
             </div>
             <span className="text-xs text-slate-500 font-mono">Immediate revocation enforced</span>
           </div>
 
           {/* Grant Form (Owner only) */}
           {doc.user_permission === 'owner' && (
-            <form onSubmit={handleGrant} className="space-y-3 bg-white/[0.02] p-4 rounded-xl border border-white/[0.06]">
-              <div className="text-xs font-bold text-slate-300">Grant Access to User</div>
-              {grantError && <p className="text-xs text-rose-400">{grantError}</p>}
+            <form onSubmit={handleGrant} className="space-y-3 bg-slate-50 dark:bg-white/[0.02] p-4 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300">Grant Access to User</div>
+              {grantError && <p className="text-xs text-rose-500 dark:text-rose-400">{grantError}</p>}
               <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="email"
@@ -194,12 +194,12 @@ const DocumentDetail = () => {
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="Target user email (e.g. viewer@trustvault.demo)"
-                  className="flex-1 px-3.5 py-2 text-xs bg-white/5 border border-white/10 rounded-lg text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                  className="flex-1 px-3.5 py-2 text-xs bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                 />
                 <select
                   value={permLevel}
                   onChange={(e) => setPermLevel(e.target.value)}
-                  className="px-3.5 py-2 text-xs bg-[#0d1424] border border-white/10 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                  className="px-3.5 py-2 text-xs bg-white dark:bg-[#0d1424] border border-slate-200 dark:border-white/10 rounded-lg text-slate-800 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                 >
                   <option value="read">Read Only</option>
                   <option value="edit">Edit (Metadata & Versions)</option>
@@ -219,7 +219,7 @@ const DocumentDetail = () => {
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs text-left">
               <thead>
-                <tr className="border-b border-white/5">
+                <tr className="border-b border-slate-200 dark:border-white/5 bg-slate-50/50 dark:bg-transparent">
                   <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500">Grantee</th>
                   <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500">Permission</th>
                   <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500">Status</th>
@@ -235,20 +235,20 @@ const DocumentDetail = () => {
                   </tr>
                 ) : (
                   permissions.map((p) => (
-                    <tr key={p.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                    <tr key={p.id} className="border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50/80 dark:hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
-                        <div className="font-semibold text-slate-200">{p.grantee_name}</div>
+                        <div className="font-semibold text-slate-900 dark:text-slate-200">{p.grantee_name}</div>
                         <div className="text-[11px] text-slate-500 font-mono">{p.grantee_email}</div>
                       </td>
-                      <td className="py-3 px-4 font-semibold uppercase text-[10px] text-slate-300">
+                      <td className="py-3 px-4 font-semibold uppercase text-[10px] text-slate-700 dark:text-slate-300">
                         {p.permission}
                       </td>
                       <td className="py-3 px-4">
                         <span
                           className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
                             p.revoked_at
-                              ? 'bg-rose-500/15 text-rose-300 border border-rose-500/25'
-                              : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
+                              ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/25'
+                              : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
                           }`}
                         >
                           {p.revoked_at ? 'Revoked' : 'Active'}
@@ -258,7 +258,7 @@ const DocumentDetail = () => {
                         {!p.revoked_at && doc.user_permission === 'owner' && (
                           <button
                             onClick={() => handleRevoke(p.id)}
-                            className="text-rose-400 hover:text-rose-300 font-semibold px-2 py-1 rounded hover:bg-rose-500/10 transition"
+                            className="text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-semibold px-2 py-1 rounded hover:bg-rose-50 dark:hover:bg-rose-500/10 transition"
                           >
                             Revoke
                           </button>

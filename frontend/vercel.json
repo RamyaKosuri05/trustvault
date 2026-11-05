@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://trustvault-backend.onrender.com/api/:path*"
+      "destination": "https://trustvault-api-fot1.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
@@ -29,4 +29,3 @@
     }
   ]
 }
-
