@@ -219,3 +219,38 @@ The following core invariants were established at project initialization and gov
 **Git Commit:** 3c55c252f66c421ab2a356e080e226ba93320f60
 
 ---
+
+
+### Entry 011 — 2026-11-05 | Fix Concurrent Audit Race Condition & Premium UI Overhaul
+**Tool:** Antigravity
+
+**Prompt (combined):**
+1. "Fix the concurrent audit race condition: `tests/test_audit.py::test_concurrent_audit_writes_preserve_linear_chain FAILED` on PostgreSQL 16 CI — 10 concurrent threads cause duplicate sequence numbers in the hash chain."
+2. "Completely revamp the Frontend UI to look incredibly modern, unique, stylish, and premium — inspired by Linear, Vercel, Raycast. Dark mode default with glassmorphism, glow effects, neon audit badges, split-screen login, sleek data-grid."
+
+**Task 1 — Concurrent Audit Race Fix (`backend/app/services/audit_service.py`):**
+- **Root Cause:** `ADVISORY_LOCK_KEY = 84729103` constant was used on line 34 (`pg_advisory_xact_lock({ADVISORY_LOCK_KEY})`) but never defined in the module — causing a `NameError` on PostgreSQL. Additionally, `_get_latest_audit_row()` had no row-level lock, so two transactions could both read the same `MAX(sequence_number)` before either committed, producing duplicate sequence numbers → `UniqueViolation` on `uq_audit_sequence_number`.
+- **Fix 1:** Defined `ADVISORY_LOCK_KEY = 84729103` as a module-level constant (between imports and `_acquire_advisory_lock_if_supported`).
+- **Fix 2:** Added `.with_for_update()` to the `_get_latest_audit_row` query inside a try/except (gracefully no-ops on SQLite). This makes the second concurrent transaction block at the `SELECT ... FOR UPDATE` until the first has committed its new sequence number row, guaranteeing linear chain ordering. The advisory lock + `FOR UPDATE` together are the double-barrier ensuring correctness.
+- **Local Test Result:** 59/59 passed in 36.96s (SQLite).
+- **CI Expectation:** `test_concurrent_audit_writes_preserve_linear_chain` will pass on PostgreSQL 16 — `NameError` is eliminated and the row lock prevents the race.
+
+**Task 2 — Premium UI Overhaul (9 frontend files):**
+- **`frontend/index.html`:** Added Inter Google Font (preconnect + link), dark body class `bg-[#070d1f]`.
+- **`frontend/src/index.css`:** Dark `bg-[#070d1f]` body, Inter font family, custom `glow-blue`, `glass`, `glass-dark` utility classes.
+- **`frontend/src/components/layout/Layout.jsx`:** Full dark glassmorphic sidebar (`bg-[#0d1424]/90 backdrop-blur-xl border-r border-white/5`), pulsing emerald status dot with neon glow, dark top header, blue glow on active nav, role badges with appropriate color variants.
+- **`frontend/src/pages/Login.jsx`:** Split-screen design — left 60% gradient hero with animated orbs, TrustVault branding, feature list; right 40% glass card (`bg-white/[0.04] backdrop-blur-2xl border border-white/[0.08]`), dark inputs with focus ring glow. Added `Zap`, `Shield`, `FileCheck` icons.
+- **`frontend/src/pages/Register.jsx`:** Matching split-screen hero with indigo/blue orbs, glass card form, role selector with colored selection states. Fixed error fallback from `'Registration failed. Please check your inputs.'` → `'Registration failed. Please try again.'`.
+- **`frontend/src/pages/Documents.jsx`:** Dark glassmorphic data-grid (`bg-white/[0.03] border border-white/[0.06]`), borderless header rows, neon permission badges, file icon per row, dark filter bar with focus glow.
+- **`frontend/src/pages/AuditLogs.jsx`:** Neon status badges (emerald glow for success, rose glow for denied), chain visualizer (sequence number circles + vertical connecting line between rows, hash arrows), dark filter with pill buttons, neon verification banner with glow shadow.
+- **`frontend/src/pages/Dashboard.jsx`:** Reusable `StatCard` component with per-color glassmorphic cards (`bg-white/[0.03]`), admin chain status badge with neon glow, blue gradient welcome banner with emerald active indicator.
+
+**Adversarial Security Review:** No security-related backend code was changed during the UI overhaul. All auth enforcement, authorization checks, and audit recording remain exclusively in the backend. No frontend visibility controls were added as security gates.
+
+**Verification:**
+- `pytest tests/ -q` → **59 passed in 36.96s** ✅
+- `npm run build` → **1657 modules transformed, built in 9.09s, zero errors** ✅
+
+**Git Commit:** daff45d (fix(audit): resolve concurrent hash chain race condition & feat(ui): premium UI overhaul)
+
+---
