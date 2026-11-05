@@ -180,3 +180,23 @@ The following core invariants were established at project initialization and gov
 **Git Commit:** ed4940957f737741e972c0a9b9acd5a4a95e1331
 
 ---
+
+
+### Entry 009 — 2026-11-05 | Container Line Endings, Executable Bit, Proxy Wiring & Smoke Verification
+**Tool:** Antigravity
+
+**Prompt:** "Before I push to GitHub and deploy to Render + Vercel, fix and verify these 4 exact deployment & browser-runtime details (Windows-to-Linux container pitfalls): 1. Linux Container Line-Endings & Exec Bit on backend/start.sh... 2. Vercel Same-Origin Proxy Wiring... 3. Cookie Domain & Secure Behind Render/Vercel Reverse Proxy... 4. Secret Leak & Tracked Junk Check..."
+
+**Task:** Fix Linux container line-endings and executable bit permissions on Windows, configure same-origin Vercel rewrite proxy wiring with relative base URLs, enforce proxy header trust and configurable cookie attributes behind cloud reverse proxies, scrub tracked test artifacts from Git, and verify end-to-end dev proxy routing with a live smoke test.
+
+**Adversarial Security Code Review & Corrections:**
+1. **Container Line-Endings & File Mode (`backend/start.sh`):** Configured `.gitattributes` to enforce `eol=lf` for shell scripts, bash, Dockerfile, and YAML files. Applied `git update-index --chmod=+x backend/start.sh` to transition file mode from `100644` to `100755` in the Git index, preventing `/bin/sh^M: bad interpreter` and `Permission denied` failures in Linux container environments.
+2. **Same-Origin Reverse Proxy Routing (`frontend/src/services/api.js`, `frontend/vercel.json`, `frontend/vite.config.js`):** Updated Axios client configuration to default `baseURL` to `import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || ''` (relative URL). Updated `vite.config.js` dev server proxy to target `http://127.0.0.1:8000` with `changeOrigin: true` to avoid IPv6 resolution drops on Windows. Verified `vercel.json` rewrite rule `/api/:path*` -> `https://trustvault-backend.onrender.com/api/:path*` precedes SPA fallback routing.
+3. **Cloud Reverse Proxy Header Trust & Cookie Configuration:** Added `SESSION_COOKIE_SAMESITE` ("lax" / "strict") and `SESSION_COOKIE_DOMAIN` to `backend/app/core/config.py` and updated `auth_service.py` to support cloud deployment cookie routing. Configured `--forwarded-allow-ips="*"` in Gunicorn/Uvicorn startup (`backend/start.sh`) so `X-Forwarded-Proto: https` is recognized behind Render's edge proxy, preventing HTTPS cookie drops.
+4. **Secret Leak & Tracked Artifact Purge:** Ran `git ls-files` audit, identified 3 staged test artifacts (`backend/test_storage/*`, `backend/test_trustvault.db`), and purged them via `git rm -r --cached`. Hardened `.gitignore` with recursive wildcards `**/*.db` and `**/test_storage/`. Confirmed zero secrets or SQLite files remain tracked.
+5. **End-to-End Live Proxy Smoke Verification:** Started Uvicorn (`127.0.0.1:8000`) and Vite (`127.0.0.1:5173`) simultaneously; confirmed HTTP GET `http://127.0.0.1:5173/api/v1/health` through Vite's reverse proxy returns HTTP 200 OK with `status: "healthy"` and `database: "connected"`.
+6. **Full Suite Verification:** Confirmed 59 of 59 pytest tests pass (100% pass rate in 42.85s), authorization mutation verification kills 20 out of 20 tests on check omission, and frontend production build completes with 0 errors (`dist/index.html`, `dist/assets/index-*.js`, `dist/assets/index-*.css`).
+
+**Git Commit:** 3eb9df620bcda2fb795ca91e47a379fe696fc894
+
+---
