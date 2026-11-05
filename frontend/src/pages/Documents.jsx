@@ -20,7 +20,7 @@ const permBadge = {
   owner: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20',
   edit: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
   read: 'bg-sky-500/10 text-sky-400 border border-sky-500/20',
-  metadata: 'bg-slate-800/80 text-slate-400 border border-white/5',
+  metadata: 'bg-white/[0.03] text-slate-400 border border-white/5',
 };
 
 const Documents = ({ scope = 'all', pageTitle = 'Documents' }) => {
@@ -91,7 +91,7 @@ const Documents = ({ scope = 'all', pageTitle = 'Documents' }) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">{pageTitle}</h1>
+          <h1 className="text-2xl font-semibold text-white tracking-tight">{pageTitle}</h1>
           <p className="text-xs text-slate-400 mt-1 font-mono">
             Per-document isolation · Strict cryptographic validation · SHA-256 hashed
           </p>
@@ -110,7 +110,7 @@ const Documents = ({ scope = 'all', pageTitle = 'Documents' }) => {
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-3 flex flex-col md:flex-row gap-3 items-center shadow-xl">
+      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl p-3 flex flex-col md:flex-row gap-3 items-center shadow-2xl">
         <div className="relative w-full md:w-80">
           <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -118,7 +118,7 @@ const Documents = ({ scope = 'all', pageTitle = 'Documents' }) => {
             placeholder="Search documents by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-slate-950/60 border border-white/10 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200"
+            className="w-full pl-9 pr-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all duration-200"
           />
         </div>
 
@@ -127,23 +127,23 @@ const Documents = ({ scope = 'all', pageTitle = 'Documents' }) => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="bg-slate-950/60 border border-white/10 text-xs rounded-xl py-2 px-3 text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all duration-200"
+            className="bg-white/[0.03] border border-white/10 text-xs rounded-xl py-2 px-3 text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all duration-200"
           >
-            <option value="" className="bg-[#0b0f19]">All Categories</option>
+            <option value="" className="bg-[#08090C]">All Categories</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id} className="bg-[#0b0f19]">{c.name}</option>
+              <option key={c.id} value={c.id} className="bg-[#08090C]">{c.name}</option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Documents Table */}
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-white/[0.07] rounded-2xl overflow-hidden shadow-xl">
+      {/* Documents Table Container */}
+      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl overflow-hidden shadow-2xl">
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-400 font-mono">Loading secure document index...</div>
         ) : documents.length === 0 ? (
           <div className="p-16 text-center space-y-3">
-            <div className="w-12 h-12 mx-auto rounded-xl bg-slate-950/80 border border-white/10 flex items-center justify-center">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center">
               <Lock className="w-5 h-5 text-slate-500" />
             </div>
             <p className="text-sm font-semibold text-slate-300">No reachable documents</p>
@@ -153,20 +153,20 @@ const Documents = ({ scope = 'all', pageTitle = 'Documents' }) => {
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-white/[0.07] bg-slate-950/40">
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Document</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Owner</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Category</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Size · Version</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Permission</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                <tr className="border-b border-white/[0.04] bg-white/[0.01]">
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Document</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Owner</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Category</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Size · Version</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Permission</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
                 {documents.map((doc) => (
                   <tr
                     key={doc.id}
-                    className="hover:bg-slate-800/30 transition-all duration-150 group"
+                    className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors duration-150 group"
                   >
                     <td className="py-3.5 px-5">
                       <div className="flex items-center space-x-3">
@@ -181,12 +181,12 @@ const Documents = ({ scope = 'all', pageTitle = 'Documents' }) => {
                     </td>
                     <td className="py-3.5 px-5 text-slate-300 font-medium">{doc.owner_name}</td>
                     <td className="py-3.5 px-5">
-                      <span className="font-mono text-xs text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded border border-white/5">
+                      <span className="font-mono text-xs text-slate-300 bg-white/[0.03] px-2 py-0.5 rounded border border-white/5">
                         {doc.category_name || 'General'}
                       </span>
                     </td>
                     <td className="py-3.5 px-5">
-                      <span className="font-mono text-xs text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded border border-white/5">
+                      <span className="font-mono text-xs text-slate-300 bg-white/[0.03] px-2 py-0.5 rounded border border-white/5">
                         {(doc.file_size / 1024).toFixed(1)} KB · v{doc.version_number}
                       </span>
                     </td>

@@ -28,9 +28,8 @@ export const authService = {
   },
 
   getMe: async () => {
-    // 12-second initial session handshake timeout to handle cloud cold starts gracefully
-    const response = await api.get('/api/v1/auth/me', { timeout: 12000 });
+    // Strict 15-second initial session handshake timeout for Render cloud cold starts
+    const response = await api.get('/api/v1/auth/me', { timeout: 15000 });
     return response.data;
   },
 };
-

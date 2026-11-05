@@ -37,21 +37,21 @@ const Layout = ({ children }) => {
 
   const roleBadge = {
     admin: 'bg-purple-500/10 text-purple-400 border border-purple-500/20',
-    owner: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+    owner: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20',
     viewer: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
   }[user?.role] || 'bg-slate-500/10 text-slate-400 border border-slate-500/20';
 
   return (
     <div className="flex h-screen bg-[#08090C] text-slate-100 overflow-hidden relative">
-      {/* Top Ambient Glow */}
+      {/* Top Ambient Radial Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.12),rgba(0,0,0,0))] pointer-events-none z-0" />
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between border-r border-white/[0.07] shadow-2xl z-20">
+      {/* Sidebar - Linear Transparent Aesthetic */}
+      <aside className="w-64 bg-white/[0.02] backdrop-blur-2xl flex flex-col justify-between border-r border-white/[0.06] shadow-2xl z-20">
         <div>
           {/* Logo */}
-          <div className="p-6 flex items-center space-x-3 border-b border-white/[0.07]">
-            <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30 text-white">
+          <div className="p-6 flex items-center space-x-3 border-b border-white/[0.06]">
+            <div className="p-2 bg-indigo-600/20 border border-indigo-500/30 rounded-xl shadow-lg shadow-indigo-500/20 text-indigo-400">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
@@ -69,9 +69,9 @@ const Layout = ({ children }) => {
                   key={item.name}
                   to={item.path}
                   className={({ isActive }) =>
-                    `flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    `flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-indigo-600/90 text-white shadow-lg shadow-indigo-600/25 border border-indigo-500/40'
+                        ? 'bg-indigo-600/80 text-white shadow-lg shadow-indigo-600/25 border border-indigo-500/40'
                         : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
                     }`
                   }
@@ -85,15 +85,15 @@ const Layout = ({ children }) => {
         </div>
 
         {/* User Profile & Logout */}
-        <div className="p-4 border-t border-white/[0.07] bg-slate-950/40">
+        <div className="p-4 border-t border-white/[0.06]">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 overflow-hidden">
-              <div className="w-9 h-9 rounded-full bg-indigo-600/20 flex items-center justify-center text-indigo-300 font-bold border border-indigo-500/30 text-sm flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-indigo-600/20 flex items-center justify-center text-indigo-300 font-bold border border-indigo-500/30 text-xs flex-shrink-0">
                 {user?.full_name ? user.full_name[0].toUpperCase() : 'U'}
               </div>
               <div className="overflow-hidden">
-                <p className="text-sm font-semibold text-white truncate">{user?.full_name}</p>
-                <span className={`inline-block font-mono text-[10px] uppercase font-semibold px-2 py-0.5 rounded ${roleBadge}`}>
+                <p className="text-xs font-semibold text-white truncate">{user?.full_name}</p>
+                <span className={`inline-block font-mono text-[9px] uppercase font-semibold px-2 py-0.5 rounded mt-0.5 ${roleBadge}`}>
                   {user?.role}
                 </span>
               </div>
@@ -112,13 +112,13 @@ const Layout = ({ children }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden z-10">
         {/* Top Header */}
-        <header className="h-14 bg-slate-900/40 backdrop-blur-md border-b border-white/[0.07] flex items-center justify-between px-8 z-10">
+        <header className="h-14 bg-white/[0.01] backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-8 z-10">
           <div className="flex items-center text-xs text-slate-400 font-mono">
             <span className="relative flex h-2 w-2 mr-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span className="text-emerald-400 font-semibold tracking-wider">ZERO-TRUST ENGINE ACTIVE</span>
+            <span className="text-emerald-400 font-semibold tracking-wider text-[11px]">ZERO-TRUST ENGINE ACTIVE</span>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -142,5 +142,3 @@ const Layout = ({ children }) => {
 };
 
 export default Layout;
-
-

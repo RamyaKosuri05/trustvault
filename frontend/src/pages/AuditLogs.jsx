@@ -67,7 +67,7 @@ const AuditLogs = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Tamper-Evident Audit Trail</h1>
+          <h1 className="text-2xl font-semibold text-white tracking-tight">Tamper-Evident Audit Trail</h1>
           <p className="text-xs text-slate-400 mt-1 font-mono">
             SHA-256 hash chain · Serialized sequence · Cryptographically linked · Append-only
           </p>
@@ -77,7 +77,7 @@ const AuditLogs = () => {
           <div className="flex items-center space-x-2.5">
             <button
               onClick={handleExportCheckpoint}
-              className="inline-flex items-center space-x-2 px-3.5 py-2 bg-slate-900/60 hover:bg-slate-800/60 text-slate-300 text-xs font-semibold rounded-xl border border-white/10 transition-all duration-200"
+              className="inline-flex items-center space-x-2 px-3.5 py-2 bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 text-xs font-semibold rounded-xl border border-white/10 transition-all duration-200"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export Checkpoint</span>
@@ -125,7 +125,7 @@ const AuditLogs = () => {
       )}
 
       {/* Filter Bar */}
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-3 flex items-center justify-between shadow-xl">
+      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl p-3 flex items-center justify-between shadow-2xl">
         <div className="flex items-center space-x-3 text-xs">
           <span className="font-semibold text-slate-400 uppercase tracking-wider text-[10px] font-mono">Filter</span>
           <div className="flex space-x-1.5">
@@ -136,7 +136,7 @@ const AuditLogs = () => {
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-200 ${
                   statusFilter === val
                     ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
                 }`}
               >
                 {label}
@@ -144,33 +144,33 @@ const AuditLogs = () => {
             ))}
           </div>
         </div>
-        <span className="font-mono text-xs text-slate-300 bg-slate-950/60 px-2.5 py-1 rounded-lg border border-white/5">
+        <span className="font-mono text-xs text-slate-300 bg-white/[0.03] px-2.5 py-1 rounded-lg border border-white/5">
           {logs.length} logged events
         </span>
       </div>
 
-      {/* Audit Log Table */}
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-white/[0.07] rounded-2xl overflow-hidden shadow-xl">
+      {/* Audit Log Table Container */}
+      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl overflow-hidden shadow-2xl">
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-400 font-mono">Loading verifiable records...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs text-left">
               <thead>
-                <tr className="border-b border-white/[0.07] bg-slate-950/40">
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Seq</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Action</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Status</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Actor</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Timestamp (UTC)</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">SHA-256 Chain Link</th>
+                <tr className="border-b border-white/[0.04] bg-white/[0.01]">
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Seq</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Action</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Status</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Actor</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Timestamp (UTC)</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">SHA-256 Chain Link</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
                 {logs.map((log, idx) => (
                   <tr
                     key={log.id}
-                    className="hover:bg-slate-800/30 transition-all duration-150"
+                    className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors duration-150"
                   >
                     {/* Seq with connected chain */}
                     <td className="py-3.5 px-5">
@@ -201,7 +201,7 @@ const AuditLogs = () => {
                       <div className="space-y-1 font-mono text-[10px]">
                         <div className="flex items-center space-x-1.5">
                           <span className="text-slate-500">prev:</span>
-                          <span className="text-slate-400 font-mono text-xs bg-slate-950/60 px-1.5 py-0.5 rounded border border-white/5">
+                          <span className="text-slate-400 font-mono text-xs bg-white/[0.03] px-1.5 py-0.5 rounded border border-white/5">
                             {log.previous_hash.substring(0, 12)}…
                           </span>
                         </div>

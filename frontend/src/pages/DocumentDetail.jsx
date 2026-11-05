@@ -97,11 +97,11 @@ const DocumentDetail = () => {
 
   if (error || !doc) {
     return (
-      <div className="max-w-md mx-auto text-center p-8 bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-white/[0.07] shadow-xl mt-12 space-y-4">
+      <div className="max-w-md mx-auto text-center p-8 bg-white/[0.02] backdrop-blur-2xl rounded-2xl border border-white/[0.06] shadow-2xl mt-12 space-y-4">
         <div className="w-12 h-12 mx-auto rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
           <AlertCircle className="w-6 h-6 text-rose-400" />
         </div>
-        <h2 className="text-base font-bold text-white tracking-tight">Access Blocked</h2>
+        <h2 className="text-base font-semibold text-white tracking-tight">Access Blocked</h2>
         <p className="text-xs text-slate-400">{error}</p>
         <button
           onClick={() => navigate('/documents')}
@@ -114,10 +114,10 @@ const DocumentDetail = () => {
   }
 
   const permBadge = {
-    owner: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-    edit: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    read: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-  }[doc.user_permission] || 'bg-slate-800 text-slate-400 border-white/5';
+    owner: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20',
+    edit: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+    read: 'bg-sky-500/10 text-sky-400 border border-sky-500/20',
+  }[doc.user_permission] || 'bg-white/[0.03] text-slate-400 border border-white/5';
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -133,13 +133,13 @@ const DocumentDetail = () => {
       </div>
 
       {/* Document Overview Card */}
-      <div className="bg-slate-900/50 backdrop-blur-xl p-6 rounded-2xl border border-white/[0.07] shadow-xl space-y-5">
+      <div className="bg-white/[0.02] backdrop-blur-2xl p-6 rounded-2xl border border-white/[0.06] shadow-2xl space-y-5">
         <div className="flex items-start justify-between">
           <div>
             <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded border ${permBadge}`}>
               {doc.user_permission || 'Metadata Only'}
             </span>
-            <h1 className="text-2xl font-bold text-white mt-2 tracking-tight">{doc.name}</h1>
+            <h1 className="text-2xl font-semibold text-white mt-2 tracking-tight">{doc.name}</h1>
             <p className="text-xs text-slate-400 mt-1">{doc.description || 'No description provided.'}</p>
           </div>
           {doc.can_download && (
@@ -153,22 +153,22 @@ const DocumentDetail = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/[0.05] text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/[0.04] text-xs">
           <div>
             <span className="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold font-mono">Original File</span>
-            <span className="font-mono text-xs text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded border border-white/5 truncate block mt-1">
+            <span className="font-mono text-xs text-slate-300 bg-white/[0.03] px-2 py-0.5 rounded border border-white/5 truncate block mt-1">
               {doc.original_filename}
             </span>
           </div>
           <div>
             <span className="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold font-mono">Size · Version</span>
-            <span className="font-mono text-xs text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded border border-white/5 truncate block mt-1">
+            <span className="font-mono text-xs text-slate-300 bg-white/[0.03] px-2 py-0.5 rounded border border-white/5 truncate block mt-1">
               {(doc.file_size / 1024).toFixed(1)} KB (v{doc.version_number})
             </span>
           </div>
           <div>
             <span className="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold font-mono">MIME Type</span>
-            <span className="font-mono text-xs text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded border border-white/5 truncate block mt-1">
+            <span className="font-mono text-xs text-slate-300 bg-white/[0.03] px-2 py-0.5 rounded border border-white/5 truncate block mt-1">
               {doc.mime_type}
             </span>
           </div>
@@ -183,18 +183,18 @@ const DocumentDetail = () => {
 
       {/* Permissions Management (Owner or Admin) */}
       {(doc.user_permission === 'owner' || user?.role === 'admin') && (
-        <div className="bg-slate-900/50 backdrop-blur-xl p-6 rounded-2xl border border-white/[0.07] shadow-xl space-y-6">
-          <div className="flex items-center justify-between border-b border-white/[0.05] pb-4">
+        <div className="bg-white/[0.02] backdrop-blur-2xl p-6 rounded-2xl border border-white/[0.06] shadow-2xl space-y-6">
+          <div className="flex items-center justify-between border-b border-white/[0.04] pb-4">
             <div className="flex items-center space-x-2.5">
               <Key className="w-4 h-4 text-indigo-400" />
-              <h2 className="text-sm font-bold text-white tracking-tight">Access Control Grants</h2>
+              <h2 className="text-sm font-semibold text-white tracking-tight">Access Control Grants</h2>
             </div>
             <span className="text-xs text-slate-500 font-mono">Immediate revocation enforced</span>
           </div>
 
           {/* Grant Form (Owner only) */}
           {doc.user_permission === 'owner' && (
-            <form onSubmit={handleGrant} className="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-white/10">
+            <form onSubmit={handleGrant} className="space-y-3 bg-white/[0.02] p-4 rounded-xl border border-white/10">
               <div className="text-xs font-semibold text-slate-300">Grant Access to User</div>
               {grantError && <p className="text-xs text-rose-400 font-mono">{grantError}</p>}
               <div className="flex flex-col sm:flex-row gap-3">
@@ -204,15 +204,15 @@ const DocumentDetail = () => {
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="Target user email (e.g. viewer@trustvault.demo)"
-                  className="flex-1 px-3.5 py-2 text-xs bg-slate-900 border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+                  className="flex-1 px-3.5 py-2 text-xs bg-white/[0.03] border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
                 />
                 <select
                   value={permLevel}
                   onChange={(e) => setPermLevel(e.target.value)}
-                  className="px-3.5 py-2 text-xs bg-slate-900 border border-white/10 rounded-xl text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+                  className="px-3.5 py-2 text-xs bg-white/[0.03] border border-white/10 rounded-xl text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
                 >
-                  <option value="read">Read Only</option>
-                  <option value="edit">Edit (Metadata & Versions)</option>
+                  <option value="read" className="bg-[#08090C]">Read Only</option>
+                  <option value="edit" className="bg-[#08090C]">Edit (Metadata & Versions)</option>
                 </select>
                 <button
                   type="submit"
@@ -229,11 +229,11 @@ const DocumentDetail = () => {
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs text-left">
               <thead>
-                <tr className="border-b border-white/[0.05] bg-slate-950/40">
-                  <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Grantee</th>
-                  <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Permission</th>
-                  <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Status</th>
-                  <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-400 text-right">Action</th>
+                <tr className="border-b border-white/[0.04] bg-white/[0.01]">
+                  <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Grantee</th>
+                  <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Permission</th>
+                  <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Status</th>
+                  <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
@@ -245,13 +245,13 @@ const DocumentDetail = () => {
                   </tr>
                 ) : (
                   permissions.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-800/30">
+                    <tr key={p.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
                         <div className="font-semibold text-slate-200">{p.grantee_name}</div>
                         <div className="text-[11px] text-slate-400 font-mono">{p.grantee_email}</div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="font-mono text-xs text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded border border-white/5 uppercase">
+                        <span className="font-mono text-xs text-slate-300 bg-white/[0.03] px-2 py-0.5 rounded border border-white/5 uppercase">
                           {p.permission}
                         </span>
                       </td>

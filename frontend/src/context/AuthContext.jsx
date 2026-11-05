@@ -15,15 +15,20 @@ export const AuthProvider = ({ children }) => {
       setServerColdStart(false);
     } catch (err) {
       setUser(null);
-      // Detect cold start (ECONNABORTED timeout, 502/503/504 gateway, or network connection drop)
+      // Detect cold start (ECONNABORTED timeout, 502/503/504 gateway, or network drop)
       const isTimeout = err.code === 'ECONNABORTED' || err.message?.includes('timeout');
       const isGateway = [502, 503, 504].includes(err.response?.status);
       const isNetwork = !err.response && Boolean(err.request);
+
       if (isTimeout || isGateway || isNetwork) {
         setServerColdStart(true);
+        // Redirect to /login?coldstart=true if not already there
+        if (window.location.pathname !== '/login' || !window.location.search.includes('coldstart=true')) {
+          window.location.replace('/login?coldstart=true');
+        }
       }
     } finally {
-      // Immediately terminate the blocker so user is not stuck on loading screen
+      // Immediately terminate the blocker so the user is never frozen on loading screen
       setLoading(false);
     }
   };
@@ -79,5 +84,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-

@@ -54,14 +54,14 @@ const UserManagement = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">User Management</h1>
+          <h1 className="text-2xl font-semibold text-white tracking-tight">User Management</h1>
           <p className="text-xs text-slate-400 mt-1 font-mono">
             Administrative account lifecycle · Session invalidation on status change
           </p>
         </div>
       </div>
 
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-3 flex items-center shadow-xl">
+      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl p-3 flex items-center shadow-2xl">
         <Search className="w-4 h-4 text-slate-400 mr-2.5 ml-2" />
         <input
           type="text"
@@ -72,30 +72,30 @@ const UserManagement = () => {
         />
       </div>
 
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-white/[0.07] rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl overflow-hidden shadow-2xl">
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-400 font-mono">Loading user directory...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs text-left">
               <thead>
-                <tr className="border-b border-white/[0.07] bg-slate-950/40">
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">User</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Role</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Account Status</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Created Date</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                <tr className="border-b border-white/[0.04] bg-white/[0.01]">
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">User</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Role</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Account Status</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Created Date</th>
+                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-800/30 transition-all duration-150">
+                  <tr key={u.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors duration-150">
                     <td className="py-3.5 px-5">
                       <div className="font-semibold text-slate-200 text-sm">{u.full_name}</div>
                       <div className="text-[11px] text-slate-400 font-mono mt-0.5">{u.email}</div>
                     </td>
                     <td className="py-3.5 px-5">
-                      <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${roleBadge[u.role] || 'bg-slate-800 text-slate-400 border border-white/10'}`}>
+                      <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${roleBadge[u.role] || 'bg-white/[0.03] text-slate-400 border border-white/10'}`}>
                         {u.role}
                       </span>
                     </td>

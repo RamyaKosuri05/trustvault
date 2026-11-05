@@ -45,7 +45,7 @@ const Register = () => {
   return (
     <div className="min-h-screen flex bg-[#08090C] text-slate-100 relative overflow-hidden font-sans selection:bg-indigo-500/30">
       {/* Top ambient radial glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.15),rgba(0,0,0,0))] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.12),rgba(0,0,0,0))] pointer-events-none" />
 
       {/* Left Panel — Hero */}
       <div className="hidden lg:flex lg:w-3/5 relative flex-col justify-center px-16 py-12 z-10 border-r border-white/[0.05]">
@@ -54,13 +54,13 @@ const Register = () => {
             <div className="p-2.5 bg-indigo-600/20 border border-indigo-500/30 rounded-xl text-indigo-400">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">TrustVault</span>
+            <span className="text-xl font-semibold tracking-tight text-white">TrustVault</span>
             <span className="font-mono text-xs text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
               ZERO-TRUST
             </span>
           </div>
 
-          <h1 className="text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+          <h1 className="text-4xl font-semibold text-white leading-tight mb-4 tracking-tight">
             Cryptographic guarantees.<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-sky-400">
               Granular isolation.
@@ -76,7 +76,7 @@ const Register = () => {
               { icon: Eye, title: 'Document Viewer', desc: 'Securely inspect and download resources granted to your identity.' },
               { icon: Shield, title: 'System Administrator', desc: 'Tamper-evident audit chain inspection provisioned strictly via CLI.' },
             ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex items-start space-x-3.5 p-3 rounded-xl bg-slate-900/40 border border-white/[0.05]">
+              <div key={title} className="flex items-start space-x-3.5 p-3 rounded-xl bg-white/[0.01] border border-white/[0.04]">
                 <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg text-indigo-400 flex-shrink-0 mt-0.5">
                   <Icon className="w-4 h-4" />
                 </div>
@@ -90,7 +90,7 @@ const Register = () => {
         </div>
       </div>
 
-      {/* Right Panel — Form */}
+      {/* Right Panel — Form Card */}
       <div className="w-full lg:w-2/5 flex items-center justify-center p-8 relative z-10">
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
@@ -98,11 +98,11 @@ const Register = () => {
             <div className="p-2 bg-indigo-600/20 border border-indigo-500/30 rounded-xl text-indigo-400">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <span className="text-xl font-bold text-white tracking-tight">TrustVault</span>
+            <span className="text-xl font-semibold text-white tracking-tight">TrustVault</span>
           </div>
 
-          <div className="bg-slate-900/50 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-7 shadow-xl">
-            <h2 className="text-lg font-bold text-white mb-1 tracking-tight">Create Account</h2>
+          <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl p-7 shadow-2xl hover:border-indigo-500/30 transition-all duration-300">
+            <h2 className="text-lg font-semibold text-white mb-1 tracking-tight">Create Account</h2>
             <p className="text-xs text-slate-400 mb-6 font-mono">Self-register as Owner or Viewer</p>
 
             {error && (
@@ -132,7 +132,7 @@ const Register = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Alice Smith"
-                    className="block w-full pl-9 pr-3 py-2 bg-slate-950/60 border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
+                    className="block w-full pl-9 pr-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
                   />
                 </div>
               </div>
@@ -149,7 +149,7 @@ const Register = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="alice@company.com"
-                    className="block w-full pl-9 pr-3 py-2 bg-slate-950/60 border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
+                    className="block w-full pl-9 pr-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
                   />
                 </div>
               </div>
@@ -167,7 +167,7 @@ const Register = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="block w-full pl-9 pr-10 py-2 bg-slate-950/60 border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
+                    className="block w-full pl-9 pr-10 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
                   />
                   <button
                     type="button"
@@ -192,7 +192,7 @@ const Register = () => {
                       className={`py-2.5 px-3 border rounded-xl text-left transition-all duration-200 ${
                         role === key
                           ? border
-                          : 'bg-slate-950/40 border-white/[0.06] text-slate-400 hover:border-white/15'
+                          : 'bg-white/[0.01] border-white/[0.06] text-slate-400 hover:border-white/15'
                       }`}
                     >
                       <p className="text-xs font-bold">{label}</p>
