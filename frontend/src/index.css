@@ -4,32 +4,33 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-[#070d1f] dark:text-slate-100 antialiased transition-colors duration-200;
+    @apply bg-[#08090C] text-slate-100 antialiased min-h-screen selection:bg-indigo-500 selection:text-white transition-colors duration-200;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
 @layer utilities {
+  .obsidian-canvas {
+    background-color: #08090C;
+    background-image: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(99, 102, 241, 0.12), rgba(0, 0, 0, 0));
+  }
+  .linear-card {
+    @apply bg-slate-900/50 backdrop-blur-xl border border-white/[0.07] rounded-2xl shadow-xl hover:border-indigo-500/40 hover:shadow-[0_0_25px_rgba(99,102,241,0.12)] transition-all duration-300;
+  }
+  .mono-pill {
+    @apply font-mono text-xs text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded border border-white/5;
+  }
   .glow-blue {
     box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
   }
-  .glow-blue-sm {
-    box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+  .glow-indigo {
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
   }
   .glow-emerald {
     box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
   }
   .glow-rose {
     box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
-  }
-  .glass {
-    @apply bg-white/70 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10;
-  }
-  .glass-dark {
-    @apply bg-white/90 dark:bg-[#0d1424]/80 backdrop-blur-xl border border-slate-200 dark:border-white/5;
-  }
-  .card-theme {
-    @apply bg-white dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06] shadow-sm dark:shadow-none;
   }
 }
 

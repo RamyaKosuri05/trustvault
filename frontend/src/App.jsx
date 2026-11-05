@@ -20,8 +20,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-900 text-slate-400 text-xs font-mono">
-        ESTABLISHING ZERO-TRUST SESSION CONTEXT...
+      <div className="flex flex-col items-center justify-center h-screen bg-[#08090C] text-slate-400 text-xs font-mono">
+        <span className="relative flex h-3 w-3 mb-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+        </span>
+        <span className="tracking-wider">ESTABLISHING ZERO-TRUST SESSION CONTEXT...</span>
       </div>
     );
   }
@@ -43,6 +47,8 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
         <Routes>
+          {/* Default Landing Route must be the modern Login Page */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
@@ -118,7 +124,7 @@ function App() {
             }
           />
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

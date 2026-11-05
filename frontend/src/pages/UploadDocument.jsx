@@ -73,26 +73,26 @@ const UploadDocument = () => {
       <div className="flex items-center space-x-3">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-all duration-200"
+          className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800/50 transition-all duration-200"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Upload Document</h1>
-          <p className="text-xs text-slate-500 font-mono">Magic bytes validation · SHA-256 integrity · Private storage</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Upload Document</h1>
+          <p className="text-xs text-slate-400 font-mono">Magic bytes validation · SHA-256 integrity · Private storage</p>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-white/[0.03] backdrop-blur-xl border border-slate-200 dark:border-white/[0.08] p-7 rounded-2xl shadow-sm dark:shadow-xl">
+      <div className="bg-slate-900/50 backdrop-blur-xl border border-white/[0.07] p-7 rounded-2xl shadow-xl">
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-start space-x-3 text-rose-600 dark:text-rose-400 text-xs">
+          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-start space-x-3 text-rose-400 text-xs">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start space-x-3 text-emerald-600 dark:text-emerald-400 text-xs">
+          <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start space-x-3 text-emerald-400 text-xs">
             <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <span>{success}</span>
           </div>
@@ -101,10 +101,10 @@ const UploadDocument = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* File Drag and Drop Zone */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 font-mono">
               Select Document File
             </label>
-            <div className="border-2 border-dashed border-slate-300 dark:border-white/10 hover:border-blue-500/50 rounded-xl p-8 text-center transition-all duration-200 bg-slate-50/60 dark:bg-white/[0.02] hover:bg-blue-50/50 dark:hover:bg-blue-500/[0.02]">
+            <div className="border border-dashed border-white/10 hover:border-indigo-500/40 rounded-2xl p-8 text-center transition-all duration-300 bg-slate-950/40 hover:bg-indigo-500/[0.02]">
               <input
                 type="file"
                 id="file-upload"
@@ -113,17 +113,17 @@ const UploadDocument = () => {
                 className="hidden"
               />
               <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center">
-                <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-600 dark:text-blue-400 mb-3 shadow-inner">
+                <div className="p-3.5 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl text-indigo-400 mb-3 shadow-inner">
                   <UploadCloud className="w-8 h-8" />
                 </div>
-                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                <span className="text-xs font-semibold text-slate-200">
                   {file ? file.name : 'Click to select or drag and drop file'}
                 </span>
-                <span className="text-[11px] text-slate-500 mt-1">
+                <span className="text-[11px] text-slate-500 mt-1 font-mono">
                   Supported: PDF, DOCX, XLSX, TXT, PNG, JPG (Max 10 MB)
                 </span>
                 {file && (
-                  <span className="mt-2.5 text-xs font-mono text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/15 px-2.5 py-1 rounded-md border border-blue-200 dark:border-blue-500/30">
+                  <span className="mt-2.5 font-mono text-xs text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
                     {(file.size / 1024).toFixed(1)} KB selected
                   </span>
                 )}
@@ -132,7 +132,7 @@ const UploadDocument = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">
               Document Title
             </label>
             <input
@@ -141,22 +141,22 @@ const UploadDocument = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Q4 Executive Financial Audit"
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className="w-full px-3.5 py-2.5 bg-slate-950/60 border border-white/10 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">
               Category
             </label>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg text-sm text-slate-800 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className="w-full px-3.5 py-2.5 bg-slate-950/60 border border-white/10 rounded-xl text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
             >
-              <option value="" className="bg-white dark:bg-[#0d1424]">Uncategorized</option>
+              <option value="" className="bg-[#0b0f19]">Uncategorized</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.id} className="bg-white dark:bg-[#0d1424]">
+                <option key={c.id} value={c.id} className="bg-[#0b0f19]">
                   {c.name}
                 </option>
               ))}
@@ -164,7 +164,7 @@ const UploadDocument = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">
               Description (Optional)
             </label>
             <textarea
@@ -172,7 +172,7 @@ const UploadDocument = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Provide sensitive handling notes or context..."
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className="w-full px-3.5 py-2.5 bg-slate-950/60 border border-white/10 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
             />
           </div>
 
@@ -180,7 +180,7 @@ const UploadDocument = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center py-2.5 px-4 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 shadow-lg shadow-blue-600/20 hover:shadow-blue-500/30 transition-all duration-200 disabled:opacity-50"
+              className="w-full flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none shadow-lg shadow-indigo-600/20 hover:shadow-indigo-500/30 transition-all duration-300 disabled:opacity-50"
             >
               {loading ? 'Validating Magic Bytes & Hashing...' : 'Submit to Secure Vault'}
             </button>
@@ -192,5 +192,3 @@ const UploadDocument = () => {
 };
 
 export default UploadDocument;
-
-

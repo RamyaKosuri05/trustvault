@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
-  const { user, logout, isAdmin, isOwner } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -22,6 +22,7 @@ const Layout = ({ children }) => {
     navigate('/login');
   };
 
+  // Strict role segregation: Upload Document is EXCLUSIVELY for owner role
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: Activity, roles: ['admin', 'owner', 'viewer'] },
     { name: 'My Documents', path: '/documents', icon: FileText, roles: ['owner', 'admin'] },
@@ -35,29 +36,32 @@ const Layout = ({ children }) => {
   const filteredNav = navItems.filter(item => item.roles.includes(user?.role));
 
   const roleBadge = {
-    admin: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30',
-    owner: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
-    viewer: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
-  }[user?.role] || 'bg-slate-500/15 text-slate-700 dark:text-slate-300 border-slate-500/30';
+    admin: 'bg-purple-500/10 text-purple-400 border border-purple-500/20',
+    owner: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+    viewer: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+  }[user?.role] || 'bg-slate-500/10 text-slate-400 border border-slate-500/20';
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-[#070d1f] text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-200">
+    <div className="flex h-screen bg-[#08090C] text-slate-100 overflow-hidden relative">
+      {/* Top Ambient Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.12),rgba(0,0,0,0))] pointer-events-none z-0" />
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-[#0d1424]/90 backdrop-blur-xl flex flex-col justify-between border-r border-slate-200 dark:border-white/5 shadow-sm dark:shadow-2xl z-20 transition-colors duration-200">
+      <aside className="w-64 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between border-r border-white/[0.07] shadow-2xl z-20">
         <div>
           {/* Logo */}
-          <div className="p-6 flex items-center space-x-3 border-b border-slate-200 dark:border-white/5">
-            <div className="p-2 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/30 text-white">
+          <div className="p-6 flex items-center space-x-3 border-b border-white/[0.07]">
+            <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30 text-white">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-tight">TrustVault</h1>
-              <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Enterprise Edition</p>
+              <h1 className="text-lg font-semibold tracking-tight text-white leading-tight">TrustVault</h1>
+              <p className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Zero-Trust v1.0</p>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-3 space-y-0.5 mt-2">
+          <nav className="p-3 space-y-1 mt-2">
             {filteredNav.map((item) => {
               const Icon = item.icon;
               return (
@@ -65,10 +69,10 @@ const Layout = ({ children }) => {
                   key={item.name}
                   to={item.path}
                   className={({ isActive }) =>
-                    `flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    `flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                        : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5'
+                        ? 'bg-indigo-600/90 text-white shadow-lg shadow-indigo-600/25 border border-indigo-500/40'
+                        : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
                     }`
                   }
                 >
@@ -81,15 +85,15 @@ const Layout = ({ children }) => {
         </div>
 
         {/* User Profile & Logout */}
-        <div className="p-4 border-t border-slate-200 dark:border-white/5 bg-slate-50/50 dark:bg-transparent">
+        <div className="p-4 border-t border-white/[0.07] bg-slate-950/40">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 overflow-hidden">
-              <div className="w-9 h-9 rounded-full bg-blue-600/15 dark:bg-blue-600/20 flex items-center justify-center text-blue-600 dark:text-blue-300 font-bold border border-blue-500/30 text-sm flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-indigo-600/20 flex items-center justify-center text-indigo-300 font-bold border border-indigo-500/30 text-sm flex-shrink-0">
                 {user?.full_name ? user.full_name[0].toUpperCase() : 'U'}
               </div>
               <div className="overflow-hidden">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user?.full_name}</p>
-                <span className={`inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border mt-0.5 ${roleBadge}`}>
+                <p className="text-sm font-semibold text-white truncate">{user?.full_name}</p>
+                <span className={`inline-block font-mono text-[10px] uppercase font-semibold px-2 py-0.5 rounded ${roleBadge}`}>
                   {user?.role}
                 </span>
               </div>
@@ -97,7 +101,7 @@ const Layout = ({ children }) => {
             <button
               onClick={handleLogout}
               title="Logout"
-              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all duration-200"
+              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all duration-200"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -106,25 +110,28 @@ const Layout = ({ children }) => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden z-10">
         {/* Top Header */}
-        <header className="h-14 bg-white/90 dark:bg-[#0d1424]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 flex items-center justify-between px-8 z-10 transition-colors duration-200">
-          <div className="flex items-center space-x-2 text-xs text-slate-500 font-mono">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.6)]"></span>
-            <span className="text-emerald-600 dark:text-emerald-500/80 font-semibold tracking-wider">ZERO-TRUST ENGINE ACTIVE</span>
+        <header className="h-14 bg-slate-900/40 backdrop-blur-md border-b border-white/[0.07] flex items-center justify-between px-8 z-10">
+          <div className="flex items-center text-xs text-slate-400 font-mono">
+            <span className="relative flex h-2 w-2 mr-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="text-emerald-400 font-semibold tracking-wider">ZERO-TRUST ENGINE ACTIVE</span>
           </div>
 
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <div className="text-right">
-              <p className="text-xs font-semibold text-slate-800 dark:text-slate-300">{user?.email}</p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-600">HttpOnly · TLS · Server-Enforced</p>
+              <p className="text-xs font-semibold text-slate-200">{user?.email}</p>
+              <p className="text-[10px] font-mono text-slate-500">HttpOnly · TLS · Server-Enforced</p>
             </div>
           </div>
         </header>
 
         {/* Body Container */}
-        <main className="flex-1 overflow-y-auto p-8 bg-slate-50 dark:bg-[#070d1f] transition-colors duration-200">
+        <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
