@@ -21,11 +21,30 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # --- Enums ---
-    user_role_enum = postgresql.ENUM("admin", "owner", "viewer", name="user_role_enum")
-    permission_enum = postgresql.ENUM("read", "edit", name="permission_enum")
-    user_role_enum.create(op.get_bind(), checkfirst=True)
-    permission_enum.create(op.get_bind(), checkfirst=True)
+    bind = op.get_bind()
+
+    # --- Enums (created safely with IF NOT EXISTS in PostgreSQL; create_type=False on column types) ---
+    if bind.dialect.name == "postgresql":
+        op.execute(
+            """
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role_enum') THEN
+                    CREATE TYPE user_role_enum AS ENUM ('admin', 'owner', 'viewer');
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'permission_enum') THEN
+                    CREATE TYPE permission_enum AS ENUM ('read', 'edit');
+                END IF;
+            END$$;
+            """
+        )
+
+    user_role_enum = postgresql.ENUM(
+        "admin", "owner", "viewer", name="user_role_enum", create_type=False
+    )
+    permission_enum = postgresql.ENUM(
+        "read", "edit", name="permission_enum", create_type=False
+    )
 
     # --- users ---
     op.create_table(
@@ -34,7 +53,7 @@ def upgrade() -> None:
         sa.Column("full_name", sa.String(120), nullable=False),
         sa.Column("email", sa.String(255), nullable=False),
         sa.Column("password_hash", sa.String(512), nullable=False),
-        sa.Column("role", sa.Enum("admin", "owner", "viewer", name="user_role_enum"), nullable=False),
+        sa.Column("role", user_role_enum, nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.text("true")),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")),
@@ -128,7 +147,7 @@ def upgrade() -> None:
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False, default=sa.text("gen_random_uuid()")),
         sa.Column("document_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column("permission", sa.Enum("read", "edit", name="permission_enum"), nullable=False),
+        sa.Column("permission", permission_enum, nullable=False),
         sa.Column("granted_by", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("granted_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")),
@@ -153,8 +172,9 @@ def upgrade() -> None:
     )
 
     # --- audit_logs ---
-    # First create the BIGSERIAL sequence
-    op.execute("CREATE SEQUENCE IF NOT EXISTS audit_logs_sequence_number_seq START 1 INCREMENT 1")
+    # First create the BIGSERIAL sequence in PostgreSQL
+    if bind.dialect.name == "postgresql":
+        op.execute("CREATE SEQUENCE IF NOT EXISTS audit_logs_sequence_number_seq START 1 INCREMENT 1")
     op.create_table(
         "audit_logs",
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False, default=sa.text("gen_random_uuid()")),
@@ -188,14 +208,17 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    bind = op.get_bind()
     op.drop_table("audit_logs")
-    op.execute("DROP SEQUENCE IF EXISTS audit_logs_sequence_number_seq")
+    if bind.dialect.name == "postgresql":
+        op.execute("DROP SEQUENCE IF EXISTS audit_logs_sequence_number_seq")
     op.drop_table("document_permissions")
     op.drop_table("document_versions")
     op.drop_table("documents")
     op.drop_table("categories")
     op.drop_table("sessions")
     op.drop_table("users")
-    op.execute("DROP TYPE IF EXISTS permission_enum")
-    op.execute("DROP TYPE IF EXISTS user_role_enum")
+    if bind.dialect.name == "postgresql":
+        op.execute("DROP TYPE IF EXISTS permission_enum")
+        op.execute("DROP TYPE IF EXISTS user_role_enum")
 
