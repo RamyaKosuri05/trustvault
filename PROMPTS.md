@@ -331,3 +331,38 @@ and also add dark and light mode for the frontend and password visibility button
 **Git Commit:** ba2c2a0 (feat(ui,auth): linear design overhaul, root login landing, and cold-start timeout handling)
 
 ---
+
+### Entry 016 — 2026-11-05 | Git Author Identity Harmonization, Strict Login Landing, Cold-Start URL Parameter Handling & Linear Transparent UI
+**Tool:** Antigravity
+
+**Prompt:**
+"CRITICAL DEPLOYMENT FIX: The previous Vercel deployment was BLOCKED because the git author email did not match the user's GitHub account. We must force the deployment and apply the correct UI & routing.
+1. Run git config user.email "ramyakosuri05@gmail.com" and git config user.name "RamyaKosuri05"
+2. STRICT ROUTING: Force default landing to /login in App.jsx. In AuthContext.jsx, if user manually hits /login or /, do not auto-redirect to dashboard.
+3. COLD-START SAFETY: Add strict timeout: 15000 to /auth/me. In catch block (ECONNABORTED, 502, 504), force setIsLoading(false), set user to null, and redirect to /login?coldstart=true. In Login.jsx, read coldstart=true and render '⚡ Server is initializing secure context (~30s). Please try signing in again.'
+4. COMPLETE UI OVERHAUL (Linear.app Transparent Aesthetic): Import Inter globally in index.css. Canvas bg-[#08090C] or bg-[#000000]. All cards/containers use bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl. Remove heavy cell borders in tables; use border-b border-white/[0.04] and hover:bg-white/[0.02].
+5. Commit as feat(core): linear ui overhaul, strict login routing, and cold-start timeout handling, update PROMPTS.md, and push to origin/main."
+
+**What Was Built & Fixed:**
+1. **Git Author Identity Configuration:**
+   - Configured `user.email "ramyakosuri05@gmail.com"` and `user.name "RamyaKosuri05"` to match the GitHub repository owner, unblocking Vercel deployment build authentication gates.
+2. **Strict Route Landing & No-Forced Redirects:**
+   - Enforced root route `/` navigating directly to `/login` via `<Route path="/" element={<Navigate to="/login" replace />} />`.
+   - Prevented automated background redirects away from `/login` or `/` so visiting `/login` always mounts the clean, complete login view and evaluator pills.
+3. **Cold-Start Timeout & URL Query Parameter Handshake:**
+   - In `frontend/src/services/authService.js`, set strict `timeout: 15000` (15s) for the initial `getMe()` verification.
+   - In `frontend/src/context/AuthContext.jsx`, caught `ECONNABORTED`, `502`, `503`, and `504` errors, immediately terminating the loading barrier (`setLoading(false)` / `setUser(null)`) and triggering `window.location.replace('/login?coldstart=true')`.
+   - In `frontend/src/pages/Login.jsx`, inspected `useSearchParams()` for `coldstart=true` or `serverColdStart`, displaying the exact prompt: *"⚡ Server is initializing secure context (~30s). Please try signing in again."*
+4. **Complete Linear.app Transparent Aesthetic:**
+   - **`index.css`:** Added global `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');` and configured transparent glass utilities.
+   - **Containers & Cards:** Upgraded containers across `Dashboard.jsx`, `Documents.jsx`, `AuditLogs.jsx`, `UserManagement.jsx`, `DocumentDetail.jsx`, `UploadDocument.jsx`, `Categories.jsx`, and `Login.jsx` to `bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl shadow-2xl`.
+   - **Data Tables:** Removed all heavy cell borders. Used subtle row dividing lines (`border-b border-white/[0.04]`) with seamless transparent row highlights (`hover:bg-white/[0.02]`).
+
+**Verification:**
+- `npm run build` in `frontend/` → **1659 modules transformed, built in 9.95s, 0 errors** ✅
+- `git log -1 --pretty=fuller` → **Author and Commit confirmed: `RamyaKosuri05 <ramyakosuri05@gmail.com>`** ✅
+
+**Git Commits:**
+- `b220783` — `feat(core): linear ui overhaul, strict login routing, and cold-start timeout handling`
+
+---
