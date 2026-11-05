@@ -244,13 +244,20 @@ The following core invariants were established at project initialization and gov
 - **`frontend/src/pages/Documents.jsx`:** Dark glassmorphic data-grid (`bg-white/[0.03] border border-white/[0.06]`), borderless header rows, neon permission badges, file icon per row, dark filter bar with focus glow.
 - **`frontend/src/pages/AuditLogs.jsx`:** Neon status badges (emerald glow for success, rose glow for denied), chain visualizer (sequence number circles + vertical connecting line between rows, hash arrows), dark filter with pill buttons, neon verification banner with glow shadow.
 - **`frontend/src/pages/Dashboard.jsx`:** Reusable `StatCard` component with per-color glassmorphic cards (`bg-white/[0.03]`), admin chain status badge with neon glow, blue gradient welcome banner with emerald active indicator.
+- **`frontend/src/pages/Categories.jsx`:** Dark glassmorphic taxonomy manager with folder icon, glowing input states, and borderless category list.
+- **`frontend/src/pages/DocumentDetail.jsx`:** Full dark glassmorphic document inspector, glowing permission badges, key access grants card with immediate revocation, and status badges.
+- **`frontend/src/pages/UploadDocument.jsx`:** Dark dashed drop zone with blue glowing hover state, styled file selection badge, and dark inputs.
+- **`frontend/src/pages/UserManagement.jsx`:** Modern borderless data table with dark status pills, search bar, and scoped user reactivation/deactivation actions.
 
 **Adversarial Security Review:** No security-related backend code was changed during the UI overhaul. All auth enforcement, authorization checks, and audit recording remain exclusively in the backend. No frontend visibility controls were added as security gates.
 
 **Verification:**
 - `pytest tests/ -q` → **59 passed in 36.96s** ✅
-- `npm run build` → **1657 modules transformed, built in 9.09s, zero errors** ✅
+- `npm run build` → **1657 modules transformed, built in 7.64s, zero errors** ✅
 
-**Git Commit:** daff45d (fix(audit): resolve concurrent hash chain race condition & feat(ui): premium UI overhaul)
+**Git Commits:**
+- `daff45d` — `fix(audit): resolve concurrent hash chain race condition & feat(ui): premium UI overhaul`
+- `943d426` — `docs: add Entry 011 to PROMPTS.md documenting concurrent audit fix and UI overhaul`
+- `9afa084` — `feat(ui): complete dark glassmorphic overhaul across remaining pages`
 
 ---
