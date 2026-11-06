@@ -64,6 +64,8 @@ async def get_audit_logs(
     action: Optional[str] = Query(None),
     status_filter: Optional[str] = Query(None, alias="status"),
     actor_id: Optional[uuid.UUID] = Query(None),
+    user_id: Optional[uuid.UUID] = Query(None, alias="user"),
+    filter_param: Optional[str] = Query(None, alias="filter"),
     document_id: Optional[uuid.UUID] = Query(None),
     date_from: Optional[datetime] = Query(None),
     date_to: Optional[datetime] = Query(None),
@@ -77,6 +79,7 @@ async def get_audit_logs(
     Get audit logs.
     - Admin: sees all events system-wide
     - Owner: sees ONLY events related to documents they own
+    - Viewer: sees ONLY events where they are the actor (their own actions, e.g. downloads)
     """
     query = db.query(AuditLog)
 
@@ -86,15 +89,28 @@ async def get_audit_logs(
         # Owner sees only audit events for their documents
         owned_doc_ids = select(Document.id).where(Document.owner_id == user.id)
         query = query.filter(AuditLog.document_id.in_(owned_doc_ids))
+    elif user.role == "viewer":
+        # Viewer sees only events where they are the actor
+        query = query.filter(AuditLog.actor_id == user.id)
     else:
         raise HTTPException(status_code=403, detail="Access denied.")
 
     if action:
-        query = query.filter(AuditLog.action == action.upper())
+        act = action.strip().upper()
+        if act == "DOWNLOAD":
+            act = "DOCUMENT_DOWNLOAD"
+        query = query.filter(AuditLog.action == act)
     if status_filter:
         query = query.filter(AuditLog.status == status_filter.lower())
-    if actor_id:
-        query = query.filter(AuditLog.actor_id == actor_id)
+    
+    target_actor = actor_id or user_id
+    if target_actor:
+        query = query.filter(AuditLog.actor_id == target_actor)
+
+    if filter_param == "recent":
+        seven_days_ago = _now_utc() - timedelta(days=7)
+        query = query.filter(AuditLog.occurred_at >= seven_days_ago)
+
     if document_id:
         query = query.filter(AuditLog.document_id == document_id)
     if date_from:

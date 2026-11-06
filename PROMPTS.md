@@ -515,3 +515,42 @@ and also add dark and light mode for the frontend and password visibility button
 - `python -m pytest tests` in `backend/`: 59 passed in 36.80s, 0 failed.
 
 ---
+
+
+### Entry 021 — 2026-11-06 | Global Light Mode Contrast & Viewer/Owner Audit Metric Sync
+**Tool:** Antigravity
+
+**Prompt:**
+"MASTER PROMPT: Strict Issue Resolution - Global Light Mode Contrast & Dashboard Metric Sync
+1. GLOBAL LIGHT MODE TEXT CONTRAST (STRICTLY LIGHT MODE ONLY):
+   - Target Scope: Entire project globally (including Login, Upload, Dashboard, Sidebar, and all other views).
+   - Issue: Text, form labels, and sub-text currently appear faded/dim when viewed in light mode.
+   - Fix: Ensure all light-mode text classes safely resolve to high-contrast dark colors (e.g., text-slate-900 or text-gray-900).
+   - HARD CONSTRAINT: DO NOT alter, overwrite, or remove ANY existing dark: Tailwind classes. The dark mode is absolutely perfect and must remain 100% untouched.
+2. VIEWER & OWNER DASHBOARD METRIC ROUTING & DATA SYNC:
+   - Target Scope: Dashboard.jsx (Viewer and Owner metric cards) and the associated Audit Trail filtering logic.
+   - Issue: Clicking 'Downloads Logged' (Viewer) or 'Recent Access' (Owner) when the count is '0' routes to the Audit Trail but displays all global events instead of showing 0 filtered events.
+   - Fix: Synchronize the routing query parameters and the target page's data fetching. Pass exact user-specific and action-specific filters (?action=download&user=[id] or ?filter=recent&user=[id]) to the Audit page. The resulting table MUST exactly match the dashboard count."
+
+**Implementation Summary:**
+1. **Global Light Mode High-Contrast Enforcement:**
+   - In `frontend/src/index.css`: Injected global light-mode contrast rules scoped strictly under `html:not(.dark)` and `html.light`, ensuring that labels (`#0f172a`), inputs, text utilities (`.text-slate-400`, `.text-slate-500`, etc.), and headings resolve to deep, readable dark slate and near-black colors.
+   - Zero `dark:` classes were altered, leaving dark mode 100% pristine.
+   - Refined `UploadDocument.jsx` to ensure light mode title and input backgrounds provide crisp contrast against the soft slate canvas while preserving all `dark:` classes.
+2. **Viewer & Owner Dashboard Metric Routing & Data Sync:**
+   - In `backend/app/api/v1/audit.py`:
+     - Extended `/api/v1/audit/logs` to allow viewers to view audit records where they are the actor (`AuditLog.actor_id == user.id`).
+     - Added support for `user` parameter (mapped to `actor_id`), normalized `action=download` $\rightarrow$ `DOCUMENT_DOWNLOAD`, and added `filter=recent` (scoped to past 7 days).
+   - In `frontend/src/pages/Dashboard.jsx`:
+     - For Owner "Recent Access": bound count to `data?.recent_activity_count ?? data?.recent_events_count ?? 0` and route to `/audit?filter=recent&user=${user?.id}`.
+     - For Viewer "Downloads Logged": bound count to `data?.recent_downloads ?? data?.downloads_count ?? 0` and route to `/audit?action=download&user=${user?.id}`.
+   - In `frontend/src/pages/AuditLogs.jsx`:
+     - Read and synchronized query params (`action`, `user`, `filter`, `status`) to `auditService.getLogs(params)`.
+     - Added an empty state with detailed contextual messaging matching the filter when 0 events exist, matching the dashboard count 1:1.
+   - In `frontend/src/App.jsx`: Allowed role `'viewer'` to access the `/audit` route, safely isolated by server-side scoping.
+
+**Verification:**
+- `npm run build` in `frontend/`: 1660 modules transformed, 0 errors in 8.20s.
+- `python -m pytest tests` in `backend/`: 59 passed in 36.55s, 0 failed.
+
+---

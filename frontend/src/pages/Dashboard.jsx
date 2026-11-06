@@ -241,7 +241,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatCard 
               label="My Documents" 
-              value={docCount || data?.my_documents_count || 0} 
+              value={docCount || data?.my_documents_count || data?.total_documents || 0} 
               sub="Under your custody" 
               icon={FileText} 
               color="indigo" 
@@ -249,7 +249,7 @@ const Dashboard = () => {
             />
             <StatCard 
               label="Active Grants" 
-              value={data?.active_grants_count || 0} 
+              value={data?.active_grants_count || data?.total_permissions_granted || 0} 
               sub="Delegated permissions" 
               icon={Share2} 
               color="emerald" 
@@ -257,11 +257,11 @@ const Dashboard = () => {
             />
             <StatCard 
               label="Recent Access" 
-              value={data?.recent_events_count || 0} 
+              value={data?.recent_activity_count ?? data?.recent_events_count ?? 0} 
               sub="Past 7 days activity" 
               icon={Download} 
               color="blue" 
-              to="/audit" 
+              to={`/audit?filter=recent&user=${user?.id}`} 
             />
           </div>
         </div>
@@ -273,7 +273,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <StatCard 
               label="Accessible Documents" 
-              value={docCount || data?.accessible_documents_count || 0} 
+              value={docCount || data?.accessible_documents_count || data?.shared_with_me || 0} 
               sub="Explicitly shared with you" 
               icon={FileText} 
               color="emerald" 
@@ -281,11 +281,11 @@ const Dashboard = () => {
             />
             <StatCard 
               label="Downloads Logged" 
-              value={data?.downloads_count || 0} 
+              value={data?.recent_downloads ?? data?.downloads_count ?? 0} 
               sub="Audited download actions" 
               icon={Download} 
               color="blue" 
-              to="/audit" 
+              to={`/audit?action=download&user=${user?.id}`} 
             />
           </div>
         </div>

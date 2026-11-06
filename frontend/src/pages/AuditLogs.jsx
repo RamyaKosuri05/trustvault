@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { auditService } from '../services/auditService';
 import { useAuth } from '../context/AuthContext';
-import { AlertTriangle, CheckCircle, RefreshCw, Download, Link as LinkIcon, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, CheckCircle, RefreshCw, Download, Link as LinkIcon, ShieldAlert, X } from 'lucide-react';
 
 const statusBadge = {
   success: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20',
@@ -11,8 +11,12 @@ const statusBadge = {
 };
 
 const AuditLogs = () => {
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  
+  const actionParam = searchParams.get('action') || '';
+  const userParam = searchParams.get('user') || searchParams.get('actor_id') || '';
+  const filterParam = searchParams.get('filter') || '';
   const initialStatus = searchParams.get('status') || '';
 
   const [logs, setLogs] = useState([]);
@@ -23,8 +27,10 @@ const AuditLogs = () => {
 
   useEffect(() => {
     const s = searchParams.get('status');
-    if (s !== null && s !== statusFilter) {
+    if (s !== null) {
       setStatusFilter(s);
+    } else {
+      setStatusFilter('');
     }
   }, [searchParams]);
 
@@ -33,6 +39,10 @@ const AuditLogs = () => {
     try {
       const params = {};
       if (statusFilter) params.status = statusFilter;
+      if (actionParam) params.action = actionParam;
+      if (userParam) params.user = userParam;
+      if (filterParam) params.filter = filterParam;
+
       const data = await auditService.getLogs(params);
       setLogs(data.items || []);
     } catch (err) {
@@ -44,15 +54,22 @@ const AuditLogs = () => {
 
   useEffect(() => {
     fetchLogs();
-  }, [statusFilter]);
+  }, [statusFilter, actionParam, userParam, filterParam]);
 
   const handleFilterClick = (val) => {
     setStatusFilter(val);
+    const next = new URLSearchParams(searchParams);
     if (val) {
-      setSearchParams({ status: val });
+      next.set('status', val);
     } else {
-      setSearchParams({});
+      next.delete('status');
     }
+    setSearchParams(next);
+  };
+
+  const handleClearAllFilters = () => {
+    setStatusFilter('');
+    setSearchParams({});
   };
 
   const handleVerifyChain = async () => {
@@ -81,6 +98,8 @@ const AuditLogs = () => {
       alert('Checkpoint export failed.');
     }
   };
+
+  const hasActiveFilters = Boolean(statusFilter || actionParam || filterParam || userParam);
 
   return (
     <div className="space-y-6">
@@ -147,8 +166,8 @@ const AuditLogs = () => {
       )}
 
       {/* Filter Bar */}
-      <div className="bg-white dark:bg-white/[0.02] backdrop-blur-2xl border border-slate-200 dark:border-white/[0.06] rounded-2xl p-3 flex items-center justify-between shadow-sm dark:shadow-2xl">
-        <div className="flex items-center space-x-3 text-xs">
+      <div className="bg-white dark:bg-white/[0.02] backdrop-blur-2xl border border-slate-200 dark:border-white/[0.06] rounded-2xl p-3 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-sm dark:shadow-2xl">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="font-bold text-[#0f172a] dark:text-slate-400 uppercase tracking-wider text-[10px] font-mono">
             Filter
           </span>
@@ -167,8 +186,51 @@ const AuditLogs = () => {
               </button>
             ))}
           </div>
+
+          {/* Active Contextual Filter Badges */}
+          {actionParam && (
+            <span className="font-mono text-xs px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 font-semibold inline-flex items-center space-x-1">
+              <span>Action: {actionParam}</span>
+              <button
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  next.delete('action');
+                  setSearchParams(next);
+                }}
+                className="ml-1 text-slate-500 hover:text-rose-500"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {filterParam === 'recent' && (
+            <span className="font-mono text-xs px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20 font-semibold inline-flex items-center space-x-1">
+              <span>Past 7 Days</span>
+              <button
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  next.delete('filter');
+                  setSearchParams(next);
+                }}
+                className="ml-1 text-slate-500 hover:text-rose-500"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {hasActiveFilters && (
+            <button
+              onClick={handleClearAllFilters}
+              className="text-[11px] font-semibold text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 underline ml-1"
+            >
+              Reset Filters
+            </button>
+          )}
         </div>
-        <span className="font-mono text-xs text-slate-800 dark:text-slate-300 bg-slate-100 dark:bg-white/[0.03] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/5 font-semibold">
+
+        <span className="font-mono text-xs text-slate-800 dark:text-slate-300 bg-slate-100 dark:bg-white/[0.03] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/5 font-semibold whitespace-nowrap self-start md:self-auto">
           {logs.length} logged events
         </span>
       </div>
@@ -178,6 +240,32 @@ const AuditLogs = () => {
         {loading ? (
           <div className="p-12 text-center text-xs text-[#475569] dark:text-slate-400 font-mono">
             Loading verifiable records...
+          </div>
+        ) : logs.length === 0 ? (
+          <div className="p-16 text-center space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 flex items-center justify-center">
+              <ShieldAlert className="w-5 h-5 text-slate-400" />
+            </div>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+              No audit events found
+            </p>
+            <p className="text-xs text-[#475569] dark:text-slate-500 font-mono">
+              {actionParam === 'download'
+                ? 'No download events have been logged for this account.'
+                : filterParam === 'recent'
+                ? 'No audit activity recorded in the past 7 days.'
+                : statusFilter
+                ? `No audit events with status "${statusFilter}" found.`
+                : 'No recorded audit trail events found.'}
+            </p>
+            {hasActiveFilters && (
+              <button
+                onClick={handleClearAllFilters}
+                className="mt-2 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow transition duration-200"
+              >
+                View All Audit Events
+              </button>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">

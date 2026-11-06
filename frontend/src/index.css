@@ -36,7 +36,72 @@
   }
 }
 
-/* Ultra-high contrast light mode overrides */
+/* ==========================================================================
+   GLOBAL LIGHT MODE HIGH-CONTRAST SYSTEM (STRICTLY LIGHT MODE ONLY)
+   DO NOT ALTER: All rules are strictly scoped to html:not(.dark) / html.light
+   Ensures 100% preservation of all existing dark mode styling.
+   ========================================================================== */
+
+/* Form labels across all screens */
+html:not(.dark) label,
+html.light label {
+  color: #0f172a;
+}
+
+/* Base text contrast across forms and views */
+html:not(.dark) input,
+html.light input,
+html:not(.dark) select,
+html.light select,
+html:not(.dark) textarea,
+html.light textarea {
+  color: #0f172a;
+}
+
+html:not(.dark) input::placeholder,
+html.light input::placeholder,
+html:not(.dark) textarea::placeholder,
+html.light textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Elevate faded slate/gray text utility classes specifically in light mode */
+html:not(.dark) .text-slate-400,
+html.light .text-slate-400,
+html:not(.dark) .text-gray-400,
+html.light .text-gray-400 {
+  color: #475569 !important;
+}
+
+html:not(.dark) .text-slate-500,
+html.light .text-slate-500,
+html:not(.dark) .text-gray-500,
+html.light .text-gray-500 {
+  color: #334155 !important;
+}
+
+html:not(.dark) .text-slate-600,
+html.light .text-slate-600,
+html:not(.dark) .text-gray-600,
+html.light .text-gray-600 {
+  color: #1e293b !important;
+}
+
+html:not(.dark) .text-slate-700,
+html.light .text-slate-700,
+html:not(.dark) .text-gray-700,
+html.light .text-gray-700 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .text-slate-300,
+html.light .text-slate-300,
+html:not(.dark) .text-gray-300,
+html.light .text-gray-300 {
+  color: #334155 !important;
+}
+
+/* Card titles and metric labels */
 html:not(.dark) .stat-card-title,
 html.light .stat-card-title {
   color: #0f172a !important;
@@ -56,4 +121,3 @@ html:not(.dark) .stat-card-micro,
 html.light .stat-card-micro {
   color: #475569 !important;
 }
-
