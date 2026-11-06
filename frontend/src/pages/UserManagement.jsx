@@ -195,41 +195,41 @@ const UserManagement = () => {
         </div>
       )}
 
-      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl p-3 flex items-center shadow-2xl">
+      <div className="bg-white dark:bg-white/[0.02] backdrop-blur-2xl border border-slate-200 dark:border-white/[0.06] rounded-2xl p-3 flex items-center shadow-sm dark:shadow-2xl">
         <Search className="w-4 h-4 text-slate-400 mr-2.5 ml-2" />
         <input
           type="text"
           placeholder="Filter users by name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-transparent text-xs text-slate-200 placeholder-slate-500 focus:outline-none"
+          className="w-full bg-transparent text-xs text-slate-900 dark:text-slate-200 placeholder-slate-400 focus:outline-none"
         />
       </div>
 
-      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-white dark:bg-white/[0.02] backdrop-blur-2xl border border-slate-200 dark:border-white/[0.06] rounded-2xl overflow-hidden shadow-sm dark:shadow-2xl">
         {loading ? (
-          <div className="p-12 text-center text-xs text-slate-400 font-mono">Loading user directory...</div>
+          <div className="p-12 text-center text-xs text-[#475569] dark:text-slate-400 font-mono">Loading user directory...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs text-left">
               <thead>
-                <tr className="border-b border-white/[0.04] bg-white/[0.01]">
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">User</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Role</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Account Status</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Created Date</th>
-                  <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono text-right">Actions</th>
+                <tr className="border-b border-slate-200 dark:border-white/[0.04] bg-slate-50 dark:bg-white/[0.01]">
+                  <th className="py-3.5 px-5 text-[10px] font-bold uppercase tracking-widest text-[#0f172a] dark:text-slate-400 font-mono">User</th>
+                  <th className="py-3.5 px-5 text-[10px] font-bold uppercase tracking-widest text-[#0f172a] dark:text-slate-400 font-mono">Role</th>
+                  <th className="py-3.5 px-5 text-[10px] font-bold uppercase tracking-widest text-[#0f172a] dark:text-slate-400 font-mono">Account Status</th>
+                  <th className="py-3.5 px-5 text-[10px] font-bold uppercase tracking-widest text-[#0f172a] dark:text-slate-400 font-mono">Created Date</th>
+                  <th className="py-3.5 px-5 text-[10px] font-bold uppercase tracking-widest text-[#0f172a] dark:text-slate-400 font-mono text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-slate-100 dark:divide-white/[0.04]">
                 {users.map((u) => (
-                  <tr key={u.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors duration-150">
+                  <tr key={u.id} className="border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors duration-150">
                     <td className="py-3.5 px-5">
-                      <div className="font-semibold text-slate-200 text-sm">{u.full_name}</div>
-                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">{u.email}</div>
+                      <div className="font-semibold text-slate-900 dark:text-slate-200 text-sm">{u.full_name}</div>
+                      <div className="text-[11px] text-[#475569] dark:text-slate-400 font-mono mt-0.5">{u.email}</div>
                     </td>
                     <td className="py-3.5 px-5">
-                      <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${roleBadge[u.role] || 'bg-white/[0.03] text-slate-400 border border-white/10'}`}>
+                      <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${roleBadge[u.role] || 'bg-slate-100 dark:bg-white/[0.03] text-slate-700 dark:text-slate-400 border border-slate-200 dark:border-white/10'}`}>
                         {u.role}
                       </span>
                     </td>
@@ -237,14 +237,14 @@ const UserManagement = () => {
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                           u.is_active
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                            : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                            ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
+                            : 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20'
                         }`}
                       >
                         {u.is_active ? 'Active' : 'Deactivated'}
                       </span>
                     </td>
-                    <td className="py-3.5 px-5 text-slate-400 font-mono text-[11px]">
+                    <td className="py-3.5 px-5 text-[#334155] dark:text-slate-400 font-mono text-[11px]">
                       {new Date(u.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-3.5 px-5 text-right">

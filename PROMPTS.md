@@ -471,3 +471,47 @@ and also add dark and light mode for the frontend and password visibility button
    - Deployed directly to production via `vercel --prod --yes`.
 
 ---
+
+
+### Entry 020 — 2026-11-06 | Admin Dashboard Metric Clickable Navigation & Ultra-High Contrast Light Mode
+**Tool:** Antigravity
+
+**Prompt:**
+"MASTER PROMPT: Execute high-contrast UX and Navigation resolution for Admin Dashboard metrics
+1. ADMIN DASHBOARD METRIC CLICKABLE NAVIGATION:
+   - Make the four top metrics/statistic cards (Total Users, Total Documents, Active Grants, Access Denied) interactive, cursor-pointer anchor buttons (<Link> or useNavigate() click event binds).
+   - Wrap each target card with the following semantic routing/filtering behavior to dynamic screens:
+     a. Clicking 'TOTAL USERS' -> redirect to User Management page (/user-management or /users).
+     b. Clicking 'TOTAL DOCUMENTS' -> navigate to Accessible Documents catalog (/documents) with reset or default list values active.
+     c. Clicking 'ACTIVE GRANTS' -> redirect to Document Grant permission controls catalog (/documents?filter=grants) displaying target grant views or an interactive filter view. (If no active entries exist, ensure it resolves to 'No documents found' or 'No Active Grants available' empty state correctly).
+     d. Clicking 'ACCESS DENIED' -> redirect or navigate to view filtered/scoped deny access records in Audit Trail (/audit?status=denied).
+2. ULTRA-HIGH CONTRAST LIGHT MODE RESOLUTION:
+   - Apply high-contrast text rendering configuration to prevent low-contrast/unreadable state variables in light mode.
+   - Background defaults to soft/flat light-slate bg-slate-50 when light toggle is active.
+   - Core Metric numbers must use text-slate-900 / #08090C black for 100% reading ease.
+   - Labels and internal micro-text labels must explicitly resolve to #0f172a (text-slate-900) and #475569 (text-slate-600) in light mode.
+   - Sub-labels must have proper text definition color (#334155).
+   - Background metrics container/cards must have highly visible layout borders (border-slate-200) and slight shadow overrides."
+
+**Implementation Summary:**
+1. **Interactive Metric Cards & Semantic Navigation:**
+   - In `Dashboard.jsx`: Converted `StatCard` into interactive, keyboard-accessible clickable cards with cursor-pointer, hover lift (`hover:-translate-y-0.5`), and `ArrowUpRight` interaction indicator.
+   - Bound Admin cards:
+     - `Total Users` -> `/user-management` (with fallback route `/users` in `App.jsx`)
+     - `Total Documents` -> `/documents`
+     - `Active Grants` -> `/documents?filter=grants`
+     - `Access Denied` -> `/audit?status=denied`
+   - Bound Owner cards (`/documents`, `/documents?filter=grants`, `/audit`) and Viewer cards (`/shared`, `/audit`).
+2. **Active Grants Filter & Empty State Handling:**
+   - In `Documents.jsx`: Added URL search param awareness (`filter=grants`). When active, sets title to "Document Grant Permission Controls", displays active filter badge, filters to granted/shared documents, provides an empty state ("No Active Grants available" / "There are currently no active permission delegations or granted documents available"), and includes an inline toggle pill to switch between all documents and active grants.
+3. **Audit Trail Scoped Filtering:**
+   - In `AuditLogs.jsx`: Integrated `useSearchParams` to synchronize `?status=denied` directly with filter state and buttons, immediately scoping to zero-trust access denials.
+4. **Ultra-High Contrast Light Mode Polish:**
+   - In `index.css`: Added CSS component rules forcing `#0f172a` for titles, `#08090C` for values, `#334155` for sub-labels, and `#475569` for micro-labels in light mode.
+   - Updated `Dashboard.jsx`, `Documents.jsx`, `AuditLogs.jsx`, `UserManagement.jsx`, and `Categories.jsx` containers to `bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] shadow-sm dark:shadow-2xl`.
+
+**Verification:**
+- `npm run build` in `frontend/`: 1660 modules transformed, 0 errors in 8.65s.
+- `python -m pytest tests` in `backend/`: 59 passed in 36.80s, 0 failed.
+
+---

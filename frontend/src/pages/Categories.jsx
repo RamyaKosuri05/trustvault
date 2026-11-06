@@ -49,15 +49,15 @@ const Categories = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-2xl font-semibold text-white tracking-tight">Document Categories</h1>
-        <p className="text-xs text-slate-400 mt-1 font-mono">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Document Categories</h1>
+        <p className="text-xs text-[#334155] dark:text-slate-400 mt-1 font-mono">
           Taxonomy management for organizing confidential records
         </p>
       </div>
 
-      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] p-5 rounded-2xl shadow-2xl">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center space-x-2 font-mono">
-          <FolderPlus className="w-4 h-4 text-indigo-400" />
+      <div className="bg-white dark:bg-white/[0.02] backdrop-blur-2xl border border-slate-200 dark:border-white/[0.06] p-5 rounded-2xl shadow-sm dark:shadow-2xl">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[#0f172a] dark:text-slate-300 mb-3 flex items-center space-x-2 font-mono">
+          <FolderPlus className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           <span>Add Category</span>
         </h2>
         <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-3">
@@ -67,14 +67,14 @@ const Categories = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Category Name (e.g. Legal & IP)"
-            className="flex-1 px-3.5 py-2 text-xs bg-white/[0.03] border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+            className="flex-1 px-3.5 py-2 text-xs bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
           />
           <input
             type="text"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
             placeholder="Optional Description"
-            className="flex-1 px-3.5 py-2 text-xs bg-white/[0.03] border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+            className="flex-1 px-3.5 py-2 text-xs bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
           />
           <button
             type="submit"
@@ -85,27 +85,27 @@ const Categories = () => {
         </form>
       </div>
 
-      <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-white dark:bg-white/[0.02] backdrop-blur-2xl border border-slate-200 dark:border-white/[0.06] rounded-2xl overflow-hidden shadow-sm dark:shadow-2xl">
         {loading ? (
-          <div className="p-8 text-center text-xs text-slate-400 font-mono">Loading categories...</div>
+          <div className="p-8 text-center text-xs text-[#475569] dark:text-slate-400 font-mono">Loading categories...</div>
         ) : (
           <table className="min-w-full text-xs text-left">
             <thead>
-              <tr className="border-b border-white/[0.04] bg-white/[0.01]">
-                <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Name</th>
-                <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono">Description</th>
-                <th className="py-3.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 font-mono text-right">Actions</th>
+              <tr className="border-b border-slate-200 dark:border-white/[0.04] bg-slate-50 dark:bg-white/[0.01]">
+                <th className="py-3.5 px-5 text-[10px] font-bold uppercase tracking-widest text-[#0f172a] dark:text-slate-400 font-mono">Name</th>
+                <th className="py-3.5 px-5 text-[10px] font-bold uppercase tracking-widest text-[#0f172a] dark:text-slate-400 font-mono">Description</th>
+                <th className="py-3.5 px-5 text-[10px] font-bold uppercase tracking-widest text-[#0f172a] dark:text-slate-400 font-mono text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.04]">
+            <tbody className="divide-y divide-slate-100 dark:divide-white/[0.04]">
               {categories.map((c) => (
-                <tr key={c.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors duration-150">
-                  <td className="py-3.5 px-5 font-semibold text-slate-200">
-                    <span className="font-mono text-xs text-slate-300 bg-white/[0.03] px-2 py-0.5 rounded border border-white/5">
+                <tr key={c.id} className="border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors duration-150">
+                  <td className="py-3.5 px-5 font-semibold text-slate-900 dark:text-slate-200">
+                    <span className="font-mono text-xs text-[#0f172a] dark:text-slate-300 bg-slate-100 dark:bg-white/[0.03] px-2 py-0.5 rounded border border-slate-200 dark:border-white/5">
                       {c.name}
                     </span>
                   </td>
-                  <td className="py-3.5 px-5 text-slate-400">{c.description || '—'}</td>
+                  <td className="py-3.5 px-5 text-[#334155] dark:text-slate-400">{c.description || '—'}</td>
                   <td className="py-3.5 px-5 text-right">
                     <button
                       onClick={() => handleDelete(c.id)}

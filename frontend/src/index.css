@@ -17,10 +17,10 @@
     background-image: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(99, 102, 241, 0.12), rgba(0, 0, 0, 0));
   }
   .linear-card {
-    @apply bg-white/80 dark:bg-white/[0.02] backdrop-blur-2xl border border-slate-200 dark:border-white/[0.06] rounded-2xl shadow-sm dark:shadow-2xl hover:border-indigo-500/30 hover:shadow-[0_0_25px_rgba(99,102,241,0.08)] transition-all duration-300;
+    @apply bg-white dark:bg-white/[0.02] backdrop-blur-2xl border border-slate-200 dark:border-white/[0.06] rounded-2xl shadow-sm dark:shadow-2xl hover:border-indigo-500/30 hover:shadow-[0_0_25px_rgba(99,102,241,0.08)] transition-all duration-300;
   }
   .mono-pill {
-    @apply font-mono text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/[0.03] px-2 py-0.5 rounded border border-slate-200 dark:border-white/5;
+    @apply font-mono text-xs text-[#0f172a] dark:text-slate-300 bg-slate-100 dark:bg-white/[0.03] px-2 py-0.5 rounded border border-slate-200 dark:border-white/5;
   }
   .glow-blue {
     box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
@@ -35,3 +35,25 @@
     box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
   }
 }
+
+/* Ultra-high contrast light mode overrides */
+html:not(.dark) .stat-card-title,
+html.light .stat-card-title {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .stat-card-value,
+html.light .stat-card-value {
+  color: #08090C !important;
+}
+
+html:not(.dark) .stat-card-sub,
+html.light .stat-card-sub {
+  color: #334155 !important;
+}
+
+html:not(.dark) .stat-card-micro,
+html.light .stat-card-micro {
+  color: #475569 !important;
+}
+
