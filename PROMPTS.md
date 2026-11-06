@@ -399,3 +399,44 @@ and also add dark and light mode for the frontend and password visibility button
 - API Proxy Verification: Tested `https://trustvault-roan.vercel.app/api/v1/categories` → **HTTP 401 Unauthorized** (confirms Vercel same-origin `/api/:path*` reverse proxy cleanly rewrites to Render backend `https://trustvault-api-fot1.onrender.com/api/:path*`) ✅
 
 ---
+
+
+### Entry 018 — 2026-11-06 | Comprehensive Audit Resolution: CSRF, Dashboard Metrics, Dark/Light Mode, Routing & Security Hardening
+**Tool:** Antigravity
+
+**Prompt:**
+"CRITICAL MASTER FIX: Resolve Security, UI, and Architectural Issues from Audit Report
+1. Cross-Origin Mobile CSRF & Cookie Fix (Backend & Frontend)
+2. Dashboard Document Count Fix (Dashboard.jsx)
+3. Dark/Light Mode Toggle Fix (CSS/UI)
+4. Frontend Audit Fixes (Favicon 404, Table Row Click, Version History UI, 404 Page, Hide Demo Creds toggle)
+5. Backend Audit Fixes (Initial Version History, Download Enforcement, Admin Provisioning, Audit Verification Access)"
+
+**Root-Cause Diagnosis & Implemented Solutions:**
+1. **Cross-Origin Mobile CSRF & Cookie Fix:**
+   - In `backend/app/main.py`: Injected Starlette `ProxyHeadersMiddleware(trusted_hosts="*")` to accurately propagate client proto and host headers across Render's edge load balancer.
+   - In `backend/app/core/config.py`: Explicitly configured production CORS allowed origins to include Vercel domains (`https://trustvault-roan.vercel.app`, `https://trustvault-ramyakosuri5-3732s-projects.vercel.app`) with `allow_credentials=True`. Configured `SESSION_COOKIE_SECURE=True` and `SESSION_COOKIE_SAMESITE="none"` for cross-site cookie transmission.
+   - In `backend/app/services/auth_service.py` & `backend/app/api/v1/auth.py`: Set both session and `trustvault_csrf` cookies on login with `secure=True, httponly=True, samesite="none"`, and wiped both on logout.
+   - In `frontend/src/services/api.js`: Set `axios.defaults.withCredentials = true` globally.
+2. **Dashboard Document Count Fix (`Dashboard.jsx`):**
+   - Replaced hardcoded "0" in metrics cards with dynamic fetching of `documentService.list()`.
+   - Populated counts dynamically: Total Documents (admin), My Documents (owner), Accessible Documents (viewer) reflecting real data.
+3. **Dark / Light Mode Toggle Resolution:**
+   - Removed hardcoded dark classes from `index.html` `<body>`.
+   - Updated `index.css` root body styling with `@apply bg-slate-50 text-slate-900 dark:bg-[#08090C] dark:text-slate-100`.
+   - Updated `Layout.jsx`, `Login.jsx`, `Register.jsx`, `linear-card`, and `mono-pill` with dual theme classes, rendering a crisp, professional light theme while preserving dark mode cyber-minimalism.
+4. **Frontend Architecture & UX Fixes:**
+   - Added valid SVGs `frontend/public/vite.svg` and `frontend/public/favicon.ico` to eliminate 404 MIME type errors under Vercel rewrites.
+   - In `Documents.jsx`: Wrapped document names in clickable `<Link to={`/documents/${doc.id}`}>`.
+   - In `DocumentDetail.jsx`: Rendered dynamic Version History table displaying version number, original file name, size, SHA-256 hash preview, timestamp, and a version download button guarded by `doc.can_download`.
+   - In `App.jsx` & `NotFound.jsx`: Created a modern, dual-themed 404 page mapped to `<Route path="*" element={<NotFound />} />`.
+   - In `Login.jsx`: Guarded 1-click evaluator demo credentials behind `import.meta.env.VITE_SHOW_DEMO_CREDS === 'true'`.
+5. **Backend Security & Version Invariants:**
+   - In `backend/app/api/v1/documents.py`: In `upload_document`, explicitly recorded `DocumentVersion` for version 1 with its storage key, size, and SHA-256 hash. In `upload_new_version`, archived previous versions without duplicate constraint collisions.
+   - In `backend/app/api/v1/documents.py`: In both `download_document` and `download_document_version`, enforced `can_download` boolean checks, rejecting unauthorized downloads with HTTP 403 Forbidden and logging `DOCUMENT_DOWNLOAD_FORBIDDEN` in the tamper-evident audit trail.
+   - In `backend/app/api/v1/users.py`: Implemented `POST /api/v1/users` allowing Admins to provision new accounts (`admin`, `owner`, `viewer`) with audit logging (`USER_PROVISIONED`), supported by `UserManagement.jsx` modal dialog.
+   - In `backend/app/api/v1/audit.py`: Updated `/verify` endpoint to allow `require_role("admin", "owner")`, allowing Document Owners to cryptographically verify hash chain integrity for their own documents.
+
+**Verification:**
+- Backend Test Suite: `python -m pytest tests` → **59 passed, 0 failed in 37.47s** ✅
+- Frontend Production Build: `npm run build` → **1660 modules transformed, built in 13.20s, 0 errors** ✅

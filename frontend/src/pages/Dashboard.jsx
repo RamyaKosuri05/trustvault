@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { dashboardService } from '../services/dashboardService';
+import { documentService } from '../services/documentService';
 import { 
   FileText, 
   Users, 
@@ -40,20 +41,30 @@ const StatCard = ({ label, value, sub, icon: Icon, color = 'indigo', accent }) =
 const Dashboard = () => {
   const { user, isAdmin, isOwner, isViewer } = useAuth();
   const [data, setData] = useState(null);
+  const [docCount, setDocCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        if (isAdmin) {
-          const res = await dashboardService.getAdmin();
-          setData(res);
-        } else if (isOwner) {
-          const res = await dashboardService.getOwner();
-          setData(res);
-        } else {
-          const res = await dashboardService.getViewer();
-          setData(res);
+        const [dashRes, docsRes] = await Promise.allSettled([
+          isAdmin
+            ? dashboardService.getAdmin()
+            : isOwner
+            ? dashboardService.getOwner()
+            : dashboardService.getViewer(),
+          documentService.list(),
+        ]);
+
+        if (dashRes.status === 'fulfilled') {
+          setData(dashRes.value);
+        }
+        if (docsRes.status === 'fulfilled') {
+          const val = docsRes.value;
+          const count = Array.isArray(val)
+            ? val.length
+            : (val?.items?.length ?? val?.total ?? 0);
+          setDocCount(count);
         }
       } catch (err) {
         console.error('Failed to load dashboard:', err);
@@ -104,7 +115,7 @@ const Dashboard = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard label="Total Users" value={data?.total_users || 0} sub="Active system accounts" icon={Users} color="blue" />
-            <StatCard label="Total Documents" value={data?.total_documents || 0} sub="Per-record isolated" icon={FileText} color="indigo" />
+            <StatCard label="Total Documents" value={docCount || data?.total_documents || 0} sub="Per-record isolated" icon={FileText} color="indigo" />
             <StatCard label="Active Grants" value={data?.total_active_grants || 0} sub="Explicit delegations" icon={Share2} color="emerald" />
             <StatCard
               label="Access Denied"
@@ -160,7 +171,7 @@ const Dashboard = () => {
       {isOwner && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <StatCard label="My Documents" value={data?.my_documents_count || 0} sub="Under your custody" icon={FileText} color="indigo" />
+            <StatCard label="My Documents" value={docCount || data?.my_documents_count || 0} sub="Under your custody" icon={FileText} color="indigo" />
             <StatCard label="Active Grants" value={data?.active_grants_count || 0} sub="Delegated permissions" icon={Share2} color="emerald" />
             <StatCard label="Recent Access" value={data?.recent_events_count || 0} sub="Past 7 days activity" icon={Download} color="blue" />
           </div>
@@ -171,7 +182,7 @@ const Dashboard = () => {
       {isViewer && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <StatCard label="Accessible Documents" value={data?.accessible_documents_count || 0} sub="Explicitly shared with you" icon={FileText} color="emerald" />
+            <StatCard label="Accessible Documents" value={docCount || data?.accessible_documents_count || 0} sub="Explicitly shared with you" icon={FileText} color="emerald" />
             <StatCard label="Downloads Logged" value={data?.downloads_count || 0} sub="Audited download actions" icon={Download} color="blue" />
           </div>
         </div>

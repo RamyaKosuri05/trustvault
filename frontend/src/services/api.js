@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+// Ensure global axios defaults and instance send cookies with cross-origin requests
+axios.defaults.withCredentials = true;
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '',
   timeout: 30000, // 30s general timeout for standard business calls

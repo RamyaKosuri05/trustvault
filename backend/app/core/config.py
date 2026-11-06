@@ -38,12 +38,15 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = "CHANGE_THIS_TO_A_RANDOM_64_CHAR_HEX_STRING"
     SESSION_EXPIRE_HOURS: int = 24
-    SESSION_COOKIE_SECURE: bool = False  # True in production
-    SESSION_COOKIE_SAMESITE: str = "lax"  # "lax" or "strict"
+    SESSION_COOKIE_SECURE: bool = True  # Secure in production & cross-origin
+    SESSION_COOKIE_SAMESITE: str = "none"  # "none" for cross-origin mobile/PWA + Vercel
     SESSION_COOKIE_DOMAIN: Optional[str] = None
 
     # CORS
-    CORS_ORIGINS: str = "http://localhost:5173"
+    CORS_ORIGINS: str = (
+        "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,"
+        "https://trustvault-roan.vercel.app,https://trustvault-ramyakosuri5-3732s-projects.vercel.app"
+    )
 
     @field_validator("CORS_ORIGINS")
     @classmethod

@@ -91,6 +91,14 @@ const DocumentDetail = () => {
     }
   };
 
+  const handleDownloadVersion = async (versionNumber) => {
+    try {
+      await documentService.downloadVersion(doc.id, versionNumber, doc.original_filename);
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Failed to download version.');
+    }
+  };
+
   if (loading) {
     return <div className="p-12 text-center text-xs text-slate-400 font-mono">Loading confidential document record...</div>;
   }
@@ -178,6 +186,76 @@ const DocumentDetail = () => {
               {doc.checksum_sha256?.substring(0, 16)}...
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Version History Table */}
+      <div className="bg-white/80 dark:bg-white/[0.02] backdrop-blur-2xl p-6 rounded-2xl border border-slate-200 dark:border-white/[0.06] shadow-xl dark:shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.04] pb-4">
+          <div className="flex items-center space-x-2.5">
+            <History className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white tracking-tight">Version History</h2>
+          </div>
+          <span className="text-xs text-slate-500 font-mono">
+            {versions.length} {versions.length === 1 ? 'version' : 'versions'} archived
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-xs text-left">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-white/[0.04] bg-slate-50 dark:bg-white/[0.01]">
+                <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono">Version</th>
+                <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono">Filename</th>
+                <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono">Size</th>
+                <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono">SHA-256 Hash</th>
+                <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono">Uploaded</th>
+                <th className="py-2.5 px-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-white/[0.04]">
+              {versions.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-6 text-center text-slate-500 font-mono text-xs">
+                    Initial version (v{doc.version_number}) active.
+                  </td>
+                </tr>
+              ) : (
+                versions.map((v) => (
+                  <tr key={v.id || v.version_number} className="border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                    <td className="py-3 px-4">
+                      <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                        v{v.version_number}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">{v.original_filename}</td>
+                    <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">{(v.file_size / 1024).toFixed(1)} KB</td>
+                    <td className="py-3 px-4">
+                      <span className="font-mono text-[11px] text-slate-500 bg-slate-100 dark:bg-white/[0.03] px-1.5 py-0.5 rounded border border-slate-200 dark:border-white/5 truncate inline-block max-w-[120px]" title={v.checksum_sha256}>
+                        {v.checksum_sha256?.substring(0, 12)}...
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
+                      {v.created_at ? new Date(v.created_at).toLocaleString() : 'N/A'}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      {doc.can_download ? (
+                        <button
+                          onClick={() => handleDownloadVersion(v.version_number)}
+                          className="inline-flex items-center space-x-1 text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold px-2.5 py-1 rounded-lg hover:bg-indigo-500/10 transition"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download</span>
+                        </button>
+                      ) : (
+                        <span className="text-slate-400 text-xs font-mono">Restricted</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 

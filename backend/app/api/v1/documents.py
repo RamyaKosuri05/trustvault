@@ -170,6 +170,20 @@ async def upload_document(
         )
         db.add(doc)
 
+        # Initial Version History: explicitly record version 1 upon upload
+        v1_entry = DocumentVersion(
+            id=uuid.uuid4(),
+            document_id=doc_id,
+            version_number=1,
+            uploaded_by=user.id,
+            storage_key=storage_key,
+            original_filename=sanitized_filename,
+            mime_type=mime_type,
+            file_size=len(file_bytes),
+            checksum_sha256=checksum,
+        )
+        db.add(v1_entry)
+
         record_audit_event(
             db=db,
             action="DOCUMENT_UPLOAD",
@@ -383,6 +397,23 @@ async def download_document(
         request_meta=meta,
     )
 
+    # Download Enforcement: Verify can_download permission
+    doc_resp = _build_doc_response(doc, user, db)
+    if not doc_resp.can_download:
+        record_audit_event_independent(
+            action="DOCUMENT_DOWNLOAD_FORBIDDEN",
+            status="denied",
+            actor_id=user.id,
+            document_id=doc.id,
+            ip_address=meta.get("ip_address"),
+            user_agent=meta.get("user_agent"),
+            details={"reason": "can_download_enforced_false"},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Download is not permitted for this document.",
+        )
+
     record_audit_event(
         db=db, action="DOCUMENT_DOWNLOAD", status="success",
         actor_id=user.id, document_id=doc.id,
@@ -522,28 +553,52 @@ async def upload_new_version(
         storage.put(new_storage_key, file_bytes)
         storage_written = True
 
-        # Archive current version
-        version_entry = DocumentVersion(
-            id=uuid.uuid4(),
-            document_id=doc.id,
-            version_number=doc.version_number,
-            uploaded_by=user.id,
-            storage_key=old_storage_key,
-            original_filename=doc.original_filename,
-            mime_type=doc.mime_type,
-            file_size=doc.file_size,
-            checksum_sha256=doc.checksum_sha256,
+        # Check if the current version entry exists in document_versions (e.g. seeded or legacy)
+        cur_version_exists = (
+            db.query(DocumentVersion)
+            .filter(
+                DocumentVersion.document_id == doc.id,
+                DocumentVersion.version_number == doc.version_number,
+            )
+            .first()
         )
-        db.add(version_entry)
+        if not cur_version_exists:
+            version_entry = DocumentVersion(
+                id=uuid.uuid4(),
+                document_id=doc.id,
+                version_number=doc.version_number,
+                uploaded_by=user.id,
+                storage_key=old_storage_key,
+                original_filename=doc.original_filename,
+                mime_type=doc.mime_type,
+                file_size=doc.file_size,
+                checksum_sha256=doc.checksum_sha256,
+            )
+            db.add(version_entry)
 
         # Update document to new version
+        new_version_number = doc.version_number + 1
         doc.storage_key = new_storage_key
         doc.original_filename = sanitized_filename
         doc.mime_type = mime_type
         doc.file_extension = ext
         doc.file_size = len(file_bytes)
         doc.checksum_sha256 = checksum
-        doc.version_number += 1
+        doc.version_number = new_version_number
+
+        # Add record for new version in document_versions
+        new_version_entry = DocumentVersion(
+            id=uuid.uuid4(),
+            document_id=doc.id,
+            version_number=new_version_number,
+            uploaded_by=user.id,
+            storage_key=new_storage_key,
+            original_filename=sanitized_filename,
+            mime_type=mime_type,
+            file_size=len(file_bytes),
+            checksum_sha256=checksum,
+        )
+        db.add(new_version_entry)
 
         record_audit_event(
             db=db, action="DOCUMENT_VERSION_UPLOAD", status="success",
@@ -613,6 +668,23 @@ async def download_document_version(
         action_name="DOCUMENT_VERSION_DOWNLOAD",
         request_meta=meta,
     )
+
+    # Download Enforcement: Verify can_download permission
+    doc_resp = _build_doc_response(doc, user, db)
+    if not doc_resp.can_download:
+        record_audit_event_independent(
+            action="DOCUMENT_VERSION_DOWNLOAD_FORBIDDEN",
+            status="denied",
+            actor_id=user.id,
+            document_id=doc.id,
+            ip_address=meta.get("ip_address"),
+            user_agent=meta.get("user_agent"),
+            details={"reason": "can_download_enforced_false", "version_number": version_number},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Download is not permitted for this document version.",
+        )
 
     ver = (
         db.query(DocumentVersion)

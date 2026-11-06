@@ -33,6 +33,7 @@ from app.models.user import User
 from app.models.session import UserSession
 from app.models.category import Category
 from app.models.document import Document
+from app.models.document_version import DocumentVersion
 from app.models.permission import DocumentPermission
 from app.models.audit_log import AuditLog
 from app.services.storage_service import LocalPrivateStorage
@@ -134,6 +135,18 @@ def make_document(db: Session, owner: User, name: str = "Test Document",
         version_number=1,
     )
     db.add(doc)
+    v1 = DocumentVersion(
+        id=uuid.uuid4(),
+        document_id=doc.id,
+        version_number=1,
+        uploaded_by=owner.id,
+        storage_key=sk,
+        original_filename="test.pdf",
+        mime_type="application/pdf",
+        file_size=len(file_bytes),
+        checksum_sha256="abc123",
+    )
+    db.add(v1)
     db.flush()
     return doc
 

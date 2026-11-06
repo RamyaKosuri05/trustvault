@@ -13,6 +13,7 @@ import UploadDocument from './pages/UploadDocument';
 import AuditLogs from './pages/AuditLogs';
 import UserManagement from './pages/UserManagement';
 import Categories from './pages/Categories';
+import NotFound from './pages/NotFound';
 
 // Route Guard wrapper
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -124,7 +125,7 @@ function App() {
             }
           />
 
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

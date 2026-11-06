@@ -23,7 +23,7 @@ from app.schemas import (
 from app.services.audit_service import record_audit_event, record_audit_event_independent
 from app.services.auth_service import (
     authenticate_user, clear_session_cookie,
-    create_session, revoke_session, set_session_cookie,
+    create_session, revoke_session, set_session_cookie, set_csrf_cookie,
 )
 from app.core.dependencies import get_current_session
 
@@ -160,8 +160,9 @@ async def login(
 
     db.commit()
 
-    # Set HttpOnly cookie
+    # Set HttpOnly session and CSRF cookies (secure: true, sameSite: 'none', httpOnly: true)
     set_session_cookie(response, raw_token)
+    set_csrf_cookie(response, raw_csrf)
 
     return LoginResponse(
         csrf_token=raw_csrf,

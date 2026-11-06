@@ -176,13 +176,27 @@ async def get_security_events(
 
 @router.get("/verify", response_model=ChainVerificationResponse)
 async def verify_chain(
+    document_id: Optional[uuid.UUID] = Query(None),
     db: Session = Depends(get_db),
-    user: User = Depends(require_role("admin")),
+    user: User = Depends(require_role("admin", "owner")),
+    meta: dict = Depends(get_request_meta),
 ):
     """
-    Run full cryptographic hash chain verification (admin only).
+    Run full cryptographic hash chain verification.
+    - Admin: verify system-wide hash chain.
+    - Document Owner: verify hash chain for owned documents or system integrity.
     Does NOT create new audit log entries (no recursion).
     """
+    if user.role == "owner" and document_id:
+        authorize_document_access(
+            db=db,
+            user=user,
+            document_id=document_id,
+            required_permission="owner",
+            action_name="AUDIT_VERIFY",
+            request_meta=meta,
+        )
+
     result = verify_audit_chain(db)
     return ChainVerificationResponse(**result)
 

@@ -25,6 +25,7 @@ from app.models.user import User
 from app.services.audit_service import record_audit_event, record_audit_event_independent
 
 COOKIE_NAME = "trustvault_session"
+CSRF_COOKIE_NAME = "trustvault_csrf"
 
 
 def _now_utc() -> datetime:
@@ -77,10 +78,32 @@ def set_session_cookie(response: Response, raw_token: str) -> None:
     )
 
 
+def set_csrf_cookie(response: Response, raw_csrf: str) -> None:
+    """Set the HttpOnly CSRF cookie on the response."""
+    response.set_cookie(
+        key=CSRF_COOKIE_NAME,
+        value=raw_csrf,
+        httponly=True,
+        secure=settings.SESSION_COOKIE_SECURE,
+        samesite=settings.SESSION_COOKIE_SAMESITE,
+        domain=settings.SESSION_COOKIE_DOMAIN or None,
+        max_age=settings.SESSION_EXPIRE_HOURS * 3600,
+        path="/",
+    )
+
+
 def clear_session_cookie(response: Response) -> None:
-    """Clear the session cookie (logout)."""
+    """Clear the session and CSRF cookies (logout)."""
     response.delete_cookie(
         key=COOKIE_NAME,
+        httponly=True,
+        secure=settings.SESSION_COOKIE_SECURE,
+        samesite=settings.SESSION_COOKIE_SAMESITE,
+        domain=settings.SESSION_COOKIE_DOMAIN or None,
+        path="/",
+    )
+    response.delete_cookie(
+        key=CSRF_COOKIE_NAME,
         httponly=True,
         secure=settings.SESSION_COOKIE_SECURE,
         samesite=settings.SESSION_COOKIE_SAMESITE,

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from '../components/common/ThemeToggle';
 import { ShieldCheck, Lock, Mail, User, AlertCircle, CheckCircle, HardDrive, Eye, EyeOff, Shield } from 'lucide-react';
 
 const Register = () => {
@@ -43,12 +44,17 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#08090C] text-slate-100 relative overflow-hidden font-sans selection:bg-indigo-500/30">
+    <div className="min-h-screen flex bg-slate-50 dark:bg-[#08090C] text-slate-900 dark:text-slate-100 relative overflow-hidden font-sans selection:bg-indigo-500/30 transition-colors duration-200">
       {/* Top ambient radial glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.12),rgba(0,0,0,0))] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.12),rgba(0,0,0,0))] pointer-events-none dark:opacity-100 opacity-40" />
+
+      {/* Theme Toggle in top-right */}
+      <div className="absolute top-5 right-5 z-30">
+        <ThemeToggle />
+      </div>
 
       {/* Left Panel — Hero */}
-      <div className="hidden lg:flex lg:w-3/5 relative flex-col justify-center px-16 py-12 z-10 border-r border-white/[0.05]">
+      <div className="hidden lg:flex lg:w-3/5 relative flex-col justify-center px-16 py-12 z-10 border-r border-slate-200 dark:border-white/[0.05]">
         <div className="max-w-xl">
           <div className="flex items-center space-x-3 mb-12">
             <div className="p-2.5 bg-indigo-600/20 border border-indigo-500/30 rounded-xl text-indigo-400">
@@ -98,22 +104,22 @@ const Register = () => {
             <div className="p-2 bg-indigo-600/20 border border-indigo-500/30 rounded-xl text-indigo-400">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <span className="text-xl font-semibold text-white tracking-tight">TrustVault</span>
+            <span className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight">TrustVault</span>
           </div>
 
-          <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.06] rounded-2xl p-7 shadow-2xl hover:border-indigo-500/30 transition-all duration-300">
-            <h2 className="text-lg font-semibold text-white mb-1 tracking-tight">Create Account</h2>
-            <p className="text-xs text-slate-400 mb-6 font-mono">Self-register as Owner or Viewer</p>
+          <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-2xl border border-slate-200 dark:border-white/[0.06] rounded-2xl p-7 shadow-xl dark:shadow-2xl hover:border-indigo-500/30 transition-all duration-300">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-1 tracking-tight">Create Account</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 font-mono">Self-register as Owner or Viewer</p>
 
             {error && (
-              <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-start space-x-2.5 text-rose-400 text-xs">
+              <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-start space-x-2.5 text-rose-600 dark:text-rose-400 text-xs">
                 <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
             )}
 
             {success && (
-              <div className="mb-5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start space-x-2.5 text-emerald-400 text-xs">
+              <div className="mb-5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start space-x-2.5 text-emerald-600 dark:text-emerald-400 text-xs">
                 <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span>{success}</span>
               </div>
@@ -121,9 +127,9 @@ const Register = () => {
 
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">Full Name</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5 font-mono">Full Name</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <User className="w-4 h-4" />
                   </div>
                   <input
@@ -132,15 +138,15 @@ const Register = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Alice Smith"
-                    className="block w-full pl-9 pr-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
+                    className="block w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-white/[0.03] border border-slate-300 dark:border-white/10 rounded-xl text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">Email Address</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5 font-mono">Email Address</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Mail className="w-4 h-4" />
                   </div>
                   <input
@@ -149,15 +155,15 @@ const Register = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="alice@company.com"
-                    className="block w-full pl-9 pr-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
+                    className="block w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-white/[0.03] border border-slate-300 dark:border-white/10 rounded-xl text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">Password (min 10 chars)</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5 font-mono">Password (min 10 chars)</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -167,13 +173,13 @@ const Register = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="block w-full pl-9 pr-10 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
+                    className="block w-full pl-9 pr-10 py-2 bg-slate-50 dark:bg-white/[0.03] border border-slate-300 dark:border-white/10 rounded-xl text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-xs transition-all duration-200"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 transition-colors"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>

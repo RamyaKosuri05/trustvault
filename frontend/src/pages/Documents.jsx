@@ -174,8 +174,13 @@ const Documents = ({ scope = 'all', pageTitle = 'Documents' }) => {
                           <FileText className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="font-semibold text-slate-200 text-sm">{doc.name}</div>
-                          <div className="text-[10px] text-slate-400 font-mono mt-0.5">{doc.original_filename}</div>
+                          <Link
+                            to={`/documents/${doc.id}`}
+                            className="font-semibold text-slate-900 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition-colors duration-150 inline-block cursor-pointer hover:underline"
+                          >
+                            {doc.name}
+                          </Link>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">{doc.original_filename}</div>
                         </div>
                       </div>
                     </td>

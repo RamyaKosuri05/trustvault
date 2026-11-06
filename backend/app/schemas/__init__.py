@@ -58,6 +58,31 @@ class RegisterRequest(BaseModel):
         return v.lower().strip()
 
 
+class UserCreateRequest(BaseModel):
+    full_name: str = Field(..., min_length=1, max_length=120)
+    email: EmailStr
+    password: str = Field(..., min_length=10, max_length=128)
+    role: str = Field(default="viewer")
+
+    @field_validator("full_name")
+    @classmethod
+    def strip_full_name(cls, v: str) -> str:
+        return v.strip()
+
+    @field_validator("role")
+    @classmethod
+    def validate_role(cls, v: str) -> str:
+        normalized = v.lower().strip()
+        if normalized not in ("admin", "owner", "viewer"):
+            raise ValueError("Role must be 'admin', 'owner', or 'viewer'.")
+        return normalized
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=1, max_length=128)

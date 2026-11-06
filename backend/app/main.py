@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.api.v1 import auth, users, categories, documents, permissions, audit, dashboard
 from app.core.config import settings
@@ -46,6 +47,9 @@ app = FastAPI(
     openapi_url="/api/openapi.json" if not settings.is_production else None,
     lifespan=lifespan,
 )
+
+# ---- Proxy Headers (Render Load Balancer / Reverse Proxy trust) ----
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # ---- Rate Limiter ----
 app.state.limiter = limiter

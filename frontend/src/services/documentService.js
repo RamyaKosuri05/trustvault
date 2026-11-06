@@ -59,5 +59,19 @@ export const documentService = {
     link.parentNode.removeChild(link);
     window.URL.revokeObjectURL(url);
   },
+
+  downloadVersion: async (id, versionNumber, filename) => {
+    const response = await api.get(`/api/v1/documents/${id}/versions/${versionNumber}/download`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename || `document_v${versionNumber}`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
 };
 

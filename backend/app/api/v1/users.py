@@ -11,12 +11,65 @@ import math
 
 from app.core.dependencies import get_current_user, get_db, get_request_meta, require_role
 from app.core.rate_limit import limiter
+from app.core.security import hash_password
 from app.models.user import User
-from app.schemas import PaginatedResponse, UserLookupResponse, UserResponse, UserStatusUpdateRequest
+from app.schemas import (
+    PaginatedResponse, UserCreateRequest, UserLookupResponse,
+    UserResponse, UserStatusUpdateRequest,
+)
 from app.services.audit_service import record_audit_event
 from app.services.auth_service import revoke_all_user_sessions
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+
+@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user(
+    body: UserCreateRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_role("admin")),
+    meta: dict = Depends(get_request_meta),
+):
+    """
+    Provision a new user account (admin only).
+    Supports provisioning users with admin, owner, or viewer roles.
+    """
+    normalized_email = body.email.lower().strip()
+    existing = db.query(User).filter(User.email == normalized_email).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A user with this email address already exists.",
+        )
+
+    new_user = User(
+        id=uuid.uuid4(),
+        full_name=body.full_name,
+        email=normalized_email,
+        password_hash=hash_password(body.password),
+        role=body.role,
+        is_active=True,
+    )
+    db.add(new_user)
+
+    record_audit_event(
+        db=db,
+        action="USER_PROVISIONED",
+        status="success",
+        actor_id=user.id,
+        ip_address=meta.get("ip_address"),
+        user_agent=meta.get("user_agent"),
+        details={
+            "created_user_id": str(new_user.id),
+            "created_email": new_user.email,
+            "created_role": new_user.role,
+        },
+    )
+
+    db.commit()
+    db.refresh(new_user)
+    return new_user
 
 
 @router.get("", response_model=PaginatedResponse[UserResponse])

@@ -20,5 +20,10 @@ export const userService = {
     const response = await api.patch(`/api/v1/users/${id}/status`, { is_active: isActive });
     return response.data;
   },
+
+  create: async (data) => {
+    const response = await api.post('/api/v1/users', data);
+    return response.data;
+  },
 };
 

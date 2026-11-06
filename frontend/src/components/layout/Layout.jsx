@@ -42,20 +42,20 @@ const Layout = ({ children }) => {
   }[user?.role] || 'bg-slate-500/10 text-slate-400 border border-slate-500/20';
 
   return (
-    <div className="flex h-screen bg-[#08090C] text-slate-100 overflow-hidden relative">
+    <div className="flex h-screen bg-slate-50 dark:bg-[#08090C] text-slate-900 dark:text-slate-100 overflow-hidden relative transition-colors duration-200">
       {/* Top Ambient Radial Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.12),rgba(0,0,0,0))] pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.12),rgba(0,0,0,0))] pointer-events-none z-0 dark:opacity-100 opacity-40" />
 
       {/* Sidebar - Linear Transparent Aesthetic */}
-      <aside className="w-64 bg-white/[0.02] backdrop-blur-2xl flex flex-col justify-between border-r border-white/[0.06] shadow-2xl z-20">
+      <aside className="w-64 bg-white/80 dark:bg-white/[0.02] backdrop-blur-2xl flex flex-col justify-between border-r border-slate-200 dark:border-white/[0.06] shadow-xl dark:shadow-2xl z-20 transition-colors duration-200">
         <div>
           {/* Logo */}
-          <div className="p-6 flex items-center space-x-3 border-b border-white/[0.06]">
+          <div className="p-6 flex items-center space-x-3 border-b border-slate-200 dark:border-white/[0.06]">
             <div className="p-2 bg-indigo-600/20 border border-indigo-500/30 rounded-xl shadow-lg shadow-indigo-500/20 text-indigo-400">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight text-white leading-tight">TrustVault</h1>
+              <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white leading-tight">TrustVault</h1>
               <p className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Zero-Trust v1.0</p>
             </div>
           </div>
@@ -72,7 +72,7 @@ const Layout = ({ children }) => {
                     `flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
                       isActive
                         ? 'bg-indigo-600/80 text-white shadow-lg shadow-indigo-600/25 border border-indigo-500/40'
-                        : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.04]'
                     }`
                   }
                 >
@@ -85,14 +85,14 @@ const Layout = ({ children }) => {
         </div>
 
         {/* User Profile & Logout */}
-        <div className="p-4 border-t border-white/[0.06]">
+        <div className="p-4 border-t border-slate-200 dark:border-white/[0.06]">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 overflow-hidden">
               <div className="w-9 h-9 rounded-full bg-indigo-600/20 flex items-center justify-center text-indigo-300 font-bold border border-indigo-500/30 text-xs flex-shrink-0">
                 {user?.full_name ? user.full_name[0].toUpperCase() : 'U'}
               </div>
               <div className="overflow-hidden">
-                <p className="text-xs font-semibold text-white truncate">{user?.full_name}</p>
+                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{user?.full_name}</p>
                 <span className={`inline-block font-mono text-[9px] uppercase font-semibold px-2 py-0.5 rounded mt-0.5 ${roleBadge}`}>
                   {user?.role}
                 </span>
@@ -112,19 +112,19 @@ const Layout = ({ children }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden z-10">
         {/* Top Header */}
-        <header className="h-14 bg-white/[0.01] backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-8 z-10">
+        <header className="h-14 bg-white/70 dark:bg-white/[0.01] backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] flex items-center justify-between px-8 z-10 transition-colors duration-200">
           <div className="flex items-center text-xs text-slate-400 font-mono">
             <span className="relative flex h-2 w-2 mr-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span className="text-emerald-400 font-semibold tracking-wider text-[11px]">ZERO-TRUST ENGINE ACTIVE</span>
+            <span className="text-emerald-500 dark:text-emerald-400 font-semibold tracking-wider text-[11px]">ZERO-TRUST ENGINE ACTIVE</span>
           </div>
 
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <div className="text-right">
-              <p className="text-xs font-semibold text-slate-200">{user?.email}</p>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{user?.email}</p>
               <p className="text-[10px] font-mono text-slate-500">HttpOnly · TLS · Server-Enforced</p>
             </div>
           </div>
