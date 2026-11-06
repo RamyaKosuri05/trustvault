@@ -440,3 +440,34 @@ and also add dark and light mode for the frontend and password visibility button
 **Verification:**
 - Backend Test Suite: `python -m pytest tests` → **59 passed, 0 failed in 37.47s** ✅
 - Frontend Production Build: `npm run build` → **1660 modules transformed, built in 13.20s, 0 errors** ✅
+
+
+### Entry 019 — 2026-11-06 | Vercel Exit 254 Resolution, Build Self-Healing & Production Demo Credential Injection
+**Tool:** Antigravity
+
+**Prompt:**
+"CRITICAL FINAL DEPLOYMENT & VERIFICATION: Resolve Vercel Build Errors (Exit 254) and Verify Master Audit Fixes
+1. Fix Vercel Build Configuration (Self-Healing): Update vercel.json in frontend root. Define buildCommand, installCommand, outputDirectory. Specify node engine (20.x).
+2. Force Inject Demo Credentials (Bypass Vercel UI): Add VITE_SHOW_DEMO_CREDS=true to production env and .env.production.
+3. Master Audit Re-Verification: Theme toggle, dashboard metrics, CORS, proxy trust, 404, favicon.
+4. Execute Final Production Deployment: Local build check and direct vercel --prod deployment."
+
+**Root-Cause Diagnosis & Fixes:**
+1. **Node Engine & Vercel Root Directory Misconfiguration (Exit 254):**
+   - Vercel's project settings were pointing to repository root `.` instead of `frontend`, attempting to run `npm install` where no root `package.json` existed, crashing with exit code 254.
+   - Updated Vercel project configuration via CLI: `vercel project update --root-directory frontend --node-version 20.x --yes`.
+   - Updated `frontend/package.json` engines to `"node": "20.x"` to match Vercel's active LTS runtime.
+   - Enhanced `frontend/vercel.json` with explicit pipeline specifications: `"framework": "vite"`, `"buildCommand": "npm run build"`, `"installCommand": "npm install"`, and `"outputDirectory": "dist"`.
+2. **Demo Credential Injection:**
+   - Injected `VITE_SHOW_DEMO_CREDS=true` directly into Vercel production environment variables.
+   - Created and committed `frontend/.env.production` with `VITE_SHOW_DEMO_CREDS=true` so Vite automatically bakes evaluator demo login credentials into the production bundle.
+3. **Master Audit Verification:**
+   - Verified dual theme switching in `index.css` and `Layout.jsx` without stuck dark mode.
+   - Verified dynamic document count binding in `Dashboard.jsx`.
+   - Verified Starlette `ProxyHeadersMiddleware`, strict CORS origins, and `SameSite=none; Secure=true` cookies in backend.
+   - Verified 404 route in `App.jsx` and valid SVG favicon assets in `public/`.
+4. **Production Deployment:**
+   - Ran `npm run build` locally in `frontend/` (1660 modules transformed, 0 errors, 8.26s).
+   - Deployed directly to production via `vercel --prod --yes`.
+
+---
